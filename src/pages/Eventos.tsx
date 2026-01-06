@@ -4,8 +4,9 @@ import Button from '../components/Button'
 import SearchBar from '../components/SearchBar'
 import { useEvents } from '../hooks/useEvents'
 import { eventsService } from '../services/events'
-import { companiesService, Company } from '../services/companies'
 import { ticketTypesService, TicketType } from '../services/ticketTypes'
+import { authService } from '../services/auth'
+import { usersService } from '../services/users'
 
 export default function Eventos() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -20,32 +21,18 @@ export default function Eventos() {
     startTime: '',
     endDate: '',
     endTime: '',
-    companyId: '',
     quantity: '',
     ticketTypeId: '',
   })
-  const [companies, setCompanies] = useState<Company[]>([])
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const { events, loading, error, fetchEvents, deleteEvent, createEvent, updateEvent, getEventById } = useEvents()
 
   useEffect(() => {
     fetchEvents().catch(() => {})
-    loadCompanies()
     loadTicketTypes()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const loadCompanies = async () => {
-    try {
-      const data = await companiesService.getAllCompanies()
-      setCompanies(data)
-    } catch (err: any) {
-      // Rota não existe no backend - não exibir erro
-      // O usuário ainda pode criar eventos mesmo sem empresas carregadas
-      setCompanies([])
-    }
-  }
 
   const loadTicketTypes = async () => {
     try {
@@ -134,8 +121,34 @@ export default function Eventos() {
         return
       }
 
-      if (!formData.companyId || !formData.quantity || !formData.ticketTypeId) {
-        setErrorMessage('Por favor, selecione a empresa, quantidade e tipo de ticket')
+      if (!formData.quantity || !formData.ticketTypeId) {
+        setErrorMessage('Por favor, informe a quantidade e selecione o tipo de ticket')
+        return
+      }
+
+      // Obter companyId do usuário logado
+      let companyId: number | null = null
+      try {
+        const loggedUserEmail = authService.getUserEmail()
+        if (!loggedUserEmail) {
+          throw new Error('Usuário não está logado')
+        }
+        
+        const loggedUserResponse = await usersService.getUser({ email: loggedUserEmail })
+        const loggedUser = Array.isArray(loggedUserResponse) ? loggedUserResponse[0] : loggedUserResponse
+        
+        if (loggedUser && loggedUser.companyId) {
+          companyId = Number(loggedUser.companyId)
+        } else {
+          throw new Error('Usuário logado não possui companyId')
+        }
+      } catch (err) {
+        setErrorMessage('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
+        return
+      }
+
+      if (!companyId || isNaN(companyId)) {
+        setErrorMessage('Não foi possível obter a empresa do usuário logado.')
         return
       }
 
@@ -162,7 +175,7 @@ export default function Eventos() {
         name: formData.name,
         startDate: startDateTime.toISOString(),
         endDate: endDateTime.toISOString(),
-        companyId: parseInt(formData.companyId, 10),
+        companyId: companyId,
         quantity,
         ticketTypeId: parseInt(formData.ticketTypeId, 10),
       })
@@ -216,9 +229,7 @@ export default function Eventos() {
       }
 
       // Incluir campos opcionais se preenchidos
-      if (formData.companyId) {
-        updateData.companyId = parseInt(formData.companyId, 10)
-      }
+      // companyId não é editável - vem do usuário logado
       if (formData.quantity) {
         const quantity = parseInt(formData.quantity, 10)
         if (!isNaN(quantity) && quantity > 0) {
@@ -526,25 +537,7 @@ export default function Eventos() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Empresa *
-                  </label>
-                  <select
-                    required
-                    value={formData.companyId}
-                    onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Selecione uma empresa</option>
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Quantidade de Ingressos *
@@ -697,24 +690,7 @@ export default function Eventos() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Empresa
-                  </label>
-                  <select
-                    value={formData.companyId}
-                    onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Selecione uma empresa</option>
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Quantidade de Ingressos

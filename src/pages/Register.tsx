@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import Button from '../components/Button'
 import { useUsers } from '../hooks/useUsers'
-import { companiesService, Company } from '../services/companies'
 import { rolesService, Role } from '../services/roles'
 
 export default function Register() {
@@ -19,22 +18,12 @@ export default function Register() {
     companyId: '',
     roleId: '',
   })
-  const [companies, setCompanies] = useState<Company[]>([])
   const [roles, setRoles] = useState<Role[]>([])
   const [formError, setFormError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadCompanies()
     loadRoles()
   }, [])
-
-  const loadCompanies = async () => {
-    try {
-      const data = await companiesService.getAllCompanies()
-      setCompanies(data)
-    } catch (err) {
-    }
-  }
 
   const loadRoles = async () => {
     try {
@@ -59,11 +48,6 @@ export default function Register() {
       return
     }
 
-    if (!formData.companyId) {
-      setFormError('Por favor, selecione uma empresa')
-      return
-    }
-
     if (!formData.roleId) {
       setFormError('Por favor, selecione um papel')
       return
@@ -74,7 +58,6 @@ export default function Register() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        companyId: parseInt(formData.companyId, 10),
         roleId: parseInt(formData.roleId, 10),
       })
       // Redirecionar para login após cadastro bem-sucedido
@@ -196,27 +179,6 @@ export default function Register() {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-            </div>
-
-            {/* Company */}
-            <div>
-              <label htmlFor="companyId" className="block text-sm font-medium text-gray-300 mb-2">
-                Empresa *
-              </label>
-              <select
-                id="companyId"
-                required
-                value={formData.companyId}
-                onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">Selecione uma empresa</option>
-                {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Role */}

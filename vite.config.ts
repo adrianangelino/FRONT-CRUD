@@ -36,12 +36,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
-        '/company': {
+        '/role': {
           target: backendUrl,
           changeOrigin: true,
           secure: false,
         },
-        '/role': {
+        '/company': {
           target: backendUrl,
           changeOrigin: true,
           secure: false,

@@ -29,9 +29,6 @@ export const API_ENDPOINTS = {
   GET_ALL_USERS: '/user/getAllUsers',
   DELETE_USER: (id: string) => `/user/ExcluirUsuario/${id}`,
   
-  // Companies
-  GET_ALL_COMPANIES: '/company/getAllCompanies',
-  
   // Ticket Types
   CREATE_TICKET_TYPE: '/ticket-type/crate-ticketType',
   GET_ALL_TICKET_TYPES: '/ticket-type/getAllTicketType',
@@ -40,5 +37,8 @@ export const API_ENDPOINTS = {
   
   // Roles
   GET_ALL_ROLES: '/role/getAllRoles',
+  
+  // Company
+  GET_MY_COMPANY: '/company/me',
 } as const
 

@@ -6,7 +6,8 @@ import {
   Users, 
   LogOut,
   ChevronRight,
-  Tag
+  Tag,
+  Building2
 } from 'lucide-react'
 import { useState } from 'react'
 import { authService } from '../services/auth'
@@ -23,6 +24,7 @@ const navItems: NavItem[] = [
   { path: '/admin/ingressos', label: 'Ingressos', icon: Ticket },
   { path: '/admin/tipos-ticket', label: 'Tipos de Ticket', icon: Tag },
   { path: '/admin/usuarios', label: 'Usuários', icon: Users },
+  { path: '/admin/empresa', label: 'Minha Empresa', icon: Building2 },
 ]
 
 export default function Sidebar() {

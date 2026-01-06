@@ -3,7 +3,8 @@ import { Ticket, Plus, Trash2, X, AlertTriangle } from 'lucide-react'
 import Button from '../components/Button'
 import SearchBar from '../components/SearchBar'
 import { useTicketTypes } from '../hooks/useTicketTypes'
-import { companiesService, Company } from '../services/companies'
+import { authService } from '../services/auth'
+import { usersService } from '../services/users'
 
 export default function TiposTicket() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -11,13 +12,11 @@ export default function TiposTicket() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [ticketTypeToDelete, setTicketTypeToDelete] = useState<{ id: string; name: string } | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [companies, setCompanies] = useState<Company[]>([])
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     endDate: '',
     endTime: '',
-    companyId: '',
     quantity: '',
   })
 
@@ -25,19 +24,8 @@ export default function TiposTicket() {
 
   useEffect(() => {
     fetchTicketTypes()
-    loadCompanies()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const loadCompanies = async () => {
-    try {
-      const data = await companiesService.getAllCompanies()
-      setCompanies(data)
-    } catch (err) {
-      // Não exibir erro crítico - a página pode funcionar sem empresas carregadas
-      // O usuário ainda pode criar tipos de ticket mesmo sem a lista de empresas
-    }
-  }
 
   const filteredTicketTypes = ticketTypes.filter(ticketType =>
     ticketType.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -73,8 +61,34 @@ export default function TiposTicket() {
         return
       }
 
-      if (!formData.companyId || !formData.quantity) {
-        setErrorMessage('Por favor, selecione a empresa e informe a quantidade')
+      if (!formData.quantity) {
+        setErrorMessage('Por favor, informe a quantidade')
+        return
+      }
+
+      // Obter companyId do usuário logado
+      let companyId: number | null = null
+      try {
+        const loggedUserEmail = authService.getUserEmail()
+        if (!loggedUserEmail) {
+          throw new Error('Usuário não está logado')
+        }
+        
+        const loggedUserResponse = await usersService.getUser({ email: loggedUserEmail })
+        const loggedUser = Array.isArray(loggedUserResponse) ? loggedUserResponse[0] : loggedUserResponse
+        
+        if (loggedUser && loggedUser.companyId) {
+          companyId = Number(loggedUser.companyId)
+        } else {
+          throw new Error('Usuário logado não possui companyId')
+        }
+      } catch (err) {
+        setErrorMessage('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
+        return
+      }
+
+      if (!companyId || isNaN(companyId)) {
+        setErrorMessage('Não foi possível obter a empresa do usuário logado.')
         return
       }
 
@@ -101,7 +115,7 @@ export default function TiposTicket() {
         name: formData.name,
         price: price,
         endDate: endDateTime.toISOString(),
-        companyId: parseInt(formData.companyId, 10),
+        companyId: companyId,
         quantity: quantity,
       })
       
@@ -299,24 +313,6 @@ export default function TiposTicket() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Empresa *
-                </label>
-                <select
-                  required
-                  value={formData.companyId}
-                  onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  <option value="">Selecione uma empresa</option>
-                  {companies.map((company) => (
-                    <option key={company.id} value={company.id}>
-                      {company.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
