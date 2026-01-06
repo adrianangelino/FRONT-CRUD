@@ -41,11 +41,9 @@ export default function Eventos() {
       const data = await companiesService.getAllCompanies()
       setCompanies(data)
     } catch (err: any) {
-      // Não definir erro como mensagem crítica, apenas logar
+      // Rota não existe no backend - não exibir erro
       // O usuário ainda pode criar eventos mesmo sem empresas carregadas
-      if (err?.message && !err.message.includes('conexão')) {
-        setErrorMessage(`Aviso: Não foi possível carregar a lista de empresas. ${err.message}`)
-      }
+      setCompanies([])
     }
   }
 

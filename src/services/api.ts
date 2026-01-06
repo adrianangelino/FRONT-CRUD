@@ -7,9 +7,34 @@ export interface ApiError {
 
 class ApiClient {
   private baseURL: string
+  private cache: Map<string, { data: any; timestamp: number }> = new Map()
+  private readonly CACHE_TTL = 30000 // 30 segundos
 
   constructor(baseURL: string) {
     this.baseURL = baseURL
+  }
+
+  private getCacheKey(endpoint: string, method: string = 'GET'): string {
+    return `${method}:${endpoint}`
+  }
+
+  private getCached<T>(key: string): T | null {
+    const cached = this.cache.get(key)
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.data as T
+    }
+    if (cached) {
+      this.cache.delete(key)
+    }
+    return null
+  }
+
+  private setCache(key: string, data: any): void {
+    this.cache.set(key, { data, timestamp: Date.now() })
+  }
+
+  clearCache(): void {
+    this.cache.clear()
   }
 
   private async request<T>(
@@ -118,33 +143,57 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' })
+  async get<T>(endpoint: string, useCache: boolean = true): Promise<T> {
+    const cacheKey = this.getCacheKey(endpoint, 'GET')
+    
+    if (useCache) {
+      const cached = this.getCached<T>(cacheKey)
+      if (cached !== null) {
+        return cached
+      }
+    }
+    
+    const data = await this.request<T>(endpoint, { method: 'GET' })
+    
+    if (useCache) {
+      this.setCache(cacheKey, data)
+    }
+    
+    return data
   }
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
+    const result = await this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
     })
+    // Limpar cache após operações de escrita
+    this.clearCache()
+    return result
   }
 
   async put<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
+    const result = await this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
+    this.clearCache()
+    return result
   }
 
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
+    const result = await this.request<T>(endpoint, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
+    this.clearCache()
+    return result
   }
 
   async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' })
+    const result = await this.request<T>(endpoint, { method: 'DELETE' })
+    this.clearCache()
+    return result
   }
 }
 

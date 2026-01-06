@@ -15,28 +15,9 @@ export function useTickets() {
       const response = await ticketsService.getAllTickets()
       const ticketsArray = Array.isArray(response) ? response : [response]
       
-      // Buscar eventos para obter os títulos
-      const { eventsService } = await import('../services/events')
-      let eventsMap: Record<string, string> = {}
-      
-      try {
-        const events = await eventsService.getAllEvents()
-        const eventsArray = Array.isArray(events) ? events : [events]
-        eventsArray.forEach(event => {
-          eventsMap[String(event.id)] = event.name || event.title || 'Evento sem nome'
-        })
-      } catch (err) {
-        // Erro silencioso ao buscar eventos
-      }
-      
-      // Mapear tickets e adicionar eventTitle
+      // Mapear tickets diretamente - eventTitle será preenchido pelo backend ou pode ser adicionado depois
       const mappedTickets = ticketsArray.map(ticket => {
-        const mapped = ticketsService.mapToTicket(ticket)
-        // Adicionar eventTitle se disponível no mapa de eventos
-        if (eventsMap[mapped.eventId]) {
-          mapped.eventTitle = eventsMap[mapped.eventId]
-        }
-        return mapped
+        return ticketsService.mapToTicket(ticket)
       })
       
       setTickets(mappedTickets)

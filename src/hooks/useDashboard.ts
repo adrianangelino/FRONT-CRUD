@@ -41,8 +41,7 @@ export function useDashboard() {
       } catch (error) {
         // Erro silencioso
       } finally {
-        // Aguarda um pouco para garantir que os estados foram atualizados
-        setTimeout(() => setLoading(false), 100)
+        setLoading(false)
       }
     }
     loadData()

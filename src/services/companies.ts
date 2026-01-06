@@ -17,7 +17,12 @@ export interface CompanyResponse {
 
 export const companiesService = {
   async getAllCompanies(): Promise<CompanyResponse[]> {
-    return apiClient.get<CompanyResponse[]>(API_ENDPOINTS.GET_ALL_COMPANIES)
+    try {
+      return await apiClient.get<CompanyResponse[]>(API_ENDPOINTS.GET_ALL_COMPANIES, false)
+    } catch (error) {
+      // Se a rota não existir, retornar array vazio
+      return []
+    }
   },
 }
 
