@@ -42,7 +42,18 @@ export default function Login() {
     try {
       const response = await login(formData)
       if (response.access_token) {
-        navigate('/admin/dashboard')
+        // Redirecionar baseado no role ID
+        const roleId = response.role?.id
+        if (roleId === 1) {
+          // Admin - acessa backoffice
+          navigate('/admin/dashboard')
+        } else if (roleId === 2) {
+          // Cliente - acessa área do cliente
+          navigate('/cliente/dashboard')
+        } else {
+          // Fallback para admin se role não estiver definido
+          navigate('/admin/dashboard')
+        }
       }
     } catch (err: any) {
       // Exibir erro via notificação

@@ -7,12 +7,10 @@ import { useErrorNotification } from './useErrorNotification'
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const { showError } = useErrorNotification()
 
   const fetchUsers = async (params?: Parameters<typeof usersService.getUser>[0]) => {
     setLoading(true)
-    setError(null)
     try {
       const response = await usersService.getUser(params)
       const usersArray = Array.isArray(response) ? response : [response]
@@ -20,8 +18,6 @@ export function useUsers() {
       setUsers(mappedUsers)
       return mappedUsers
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Erro ao carregar usuários')
       showError(err)
       throw err
     } finally {
@@ -31,15 +27,12 @@ export function useUsers() {
 
   const createUser = async (data: Parameters<typeof usersService.createUser>[0]) => {
     setLoading(true)
-    setError(null)
     try {
       const response = await usersService.createUser(data)
       const newUser = usersService.mapToUser(response)
       setUsers(prev => [...prev, newUser])
       return response
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Erro ao criar usuário')
       showError(err)
       throw err
     } finally {
@@ -49,7 +42,6 @@ export function useUsers() {
 
   const fetchAllUsers = useCallback(async () => {
     setLoading(true)
-    setError(null)
     try {
       const response = await usersService.getAllUsers()
       const usersArray = Array.isArray(response) ? response : [response]
@@ -57,8 +49,6 @@ export function useUsers() {
       setUsers(mappedUsers)
       return mappedUsers
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Erro ao carregar usuários')
       showError(err)
       throw err
     } finally {
@@ -68,13 +58,10 @@ export function useUsers() {
 
   const deleteUser = async (id: string) => {
     setLoading(true)
-    setError(null)
     try {
       await usersService.deleteUser(id)
       setUsers(prev => prev.filter(user => user.id !== id))
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Erro ao deletar usuário')
       showError(err)
       throw err
     } finally {
@@ -85,7 +72,6 @@ export function useUsers() {
   return {
     users,
     loading,
-    error,
     fetchUsers,
     fetchAllUsers,
     createUser,

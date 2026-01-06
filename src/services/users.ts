@@ -6,9 +6,6 @@ export interface CreateUserRequest {
   name: string
   email: string
   password: string
-  companyId?: number // ID da empresa (opcional - pode vir do backend)
-  roleId: number // ID do papel/role (obrigatório)
-  novoEmail?: string // Email alternativo (opcional)
 }
 
 export interface UserResponse {

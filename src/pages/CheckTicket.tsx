@@ -160,12 +160,45 @@ export default function CheckTicket() {
     } catch (err: any) {
       setScanning(false)
       cleanupScanner()
-      if (err?.message?.includes('Permission denied') || err?.message?.includes('NotAllowedError')) {
-        setError('Permissão de câmera negada. Por favor, permita o acesso à câmera nas configurações do navegador.')
-      } else if (err?.message?.includes('NotFoundError')) {
+      
+      // Detectar diferentes tipos de erros de permissão
+      const errorMessage = err?.message || err?.toString() || ''
+      const errorName = err?.name || ''
+      
+      // Verificar se é erro de permissão negada
+      const isPermissionDenied = 
+        errorMessage.includes('Permission denied') ||
+        errorMessage.includes('NotAllowedError') ||
+        errorMessage.includes('permission denied') ||
+        errorMessage.includes('not allowed') ||
+        errorName === 'NotAllowedError' ||
+        errorName === 'PermissionDeniedError' ||
+        err?.code === 0 || // Código comum para permissão negada
+        (err?.constraint && err.constraint.includes('facingMode'))
+      
+      // Verificar se é erro de câmera não encontrada
+      const isNotFound = 
+        errorMessage.includes('NotFoundError') ||
+        errorMessage.includes('not found') ||
+        errorName === 'NotFoundError' ||
+        errorName === 'DevicesNotFoundError'
+      
+      // Verificar se é erro de dispositivo indisponível
+      const isNotAvailable = 
+        errorMessage.includes('NotReadableError') ||
+        errorMessage.includes('TrackStartError') ||
+        errorName === 'NotReadableError'
+      
+      if (isPermissionDenied) {
+        setError('Permissão de câmera negada. Por favor, permita o acesso à câmera nas configurações do navegador e tente novamente.')
+      } else if (isNotFound) {
         setError('Nenhuma câmera encontrada. Por favor, conecte uma câmera e tente novamente.')
+      } else if (isNotAvailable) {
+        setError('Câmera não disponível. Verifique se a câmera não está sendo usada por outro aplicativo.')
       } else {
-        setError('Erro ao iniciar o scanner: ' + (err?.message || 'Erro desconhecido'))
+        // Para outros erros, mostrar mensagem genérica mas útil
+        const cleanError = errorMessage.replace(/^.*?Error:\s*/i, '').trim()
+        setError(cleanError || 'Erro ao iniciar o scanner. Verifique se a câmera está disponível e tente novamente.')
       }
     }
   }
@@ -363,12 +396,41 @@ export default function CheckTicket() {
 
       {/* Success Animation - Full Screen Overlay com Confetes */}
       {success && result && (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}>
+        <div 
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+          onClick={() => {
+            setIsClosing(true)
+            setTimeout(() => {
+              setSuccess(false)
+              setResult(null)
+              setIsClosing(false)
+            }, 400)
+          }}
+        >
           {/* Confetes */}
           <Confetti />
           
           {/* Modal de Sucesso */}
-          <div className={`relative bg-green-500 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl ${isClosing ? 'animate-modalSlideDown' : 'animate-modalSlideUp'}`}>
+          <div 
+            className={`relative bg-green-500 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl ${isClosing ? 'animate-modalSlideDown' : 'animate-modalSlideUp'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botão de Fechar */}
+            <button
+              onClick={() => {
+                setIsClosing(true)
+                setTimeout(() => {
+                  setSuccess(false)
+                  setResult(null)
+                  setIsClosing(false)
+                }, 400)
+              }}
+              className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+              aria-label="Fechar"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+
             {/* Círculo branco com checkmark */}
             <div className="flex justify-center mb-6">
               <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center animate-scaleIn">
@@ -407,15 +469,59 @@ export default function CheckTicket() {
                 </div>
               )}
             </div>
+
+            {/* Botão de Fechar no rodapé */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => {
+                  setIsClosing(true)
+                  setTimeout(() => {
+                    setSuccess(false)
+                    setResult(null)
+                    setIsClosing(false)
+                  }, 400)
+                }}
+                className="px-6 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-medium transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Error Animation - Full Screen Overlay */}
       {error && (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}>
+        <div 
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+          onClick={() => {
+            setIsClosing(true)
+            setTimeout(() => {
+              setError(null)
+              setIsClosing(false)
+            }, 400)
+          }}
+        >
           {/* Modal de Erro */}
-          <div className={`relative bg-red-500 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl ${isClosing ? 'animate-modalSlideDown' : 'animate-modalSlideUp'}`}>
+          <div 
+            className={`relative bg-red-500 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl ${isClosing ? 'animate-modalSlideDown' : 'animate-modalSlideUp'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botão de Fechar */}
+            <button
+              onClick={() => {
+                setIsClosing(true)
+                setTimeout(() => {
+                  setError(null)
+                  setIsClosing(false)
+                }, 400)
+              }}
+              className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+              aria-label="Fechar"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+
             {/* Círculo branco com X */}
             <div className="flex justify-center mb-6">
               <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center animate-scaleIn">
@@ -426,11 +532,49 @@ export default function CheckTicket() {
             {/* Mensagem de erro */}
             <div className="text-center animate-slideUp delay-100">
               <h2 className="text-3xl font-bold text-white mb-2">
-                {error.includes('Ticket não encontrado') ? 'QR Code inválido' : 'Erro na Verificação'}
+                {error.includes('Ticket não encontrado') 
+                  ? 'QR Code inválido' 
+                  : error.includes('Permissão de câmera negada')
+                  ? 'Permissão Negada'
+                  : error.includes('Nenhuma câmera encontrada')
+                  ? 'Câmera Não Encontrada'
+                  : error.includes('não disponível')
+                  ? 'Câmera Indisponível'
+                  : 'Erro na Verificação'}
               </h2>
-              <p className="text-xl text-white/90">
-                {error.includes('Ticket não encontrado') ? 'Verifique e tente novamente' : error}
+              <p className="text-xl text-white/90 mb-4">
+                {error.includes('Ticket não encontrado') 
+                  ? 'Verifique e tente novamente' 
+                  : error}
               </p>
+              
+              {/* Instruções adicionais para erro de permissão */}
+              {error.includes('Permissão de câmera negada') && (
+                <div className="mt-4 p-4 bg-white/10 rounded-lg text-left">
+                  <p className="text-white/90 text-sm font-semibold mb-2">Como permitir o acesso:</p>
+                  <ul className="text-white/80 text-sm space-y-1 list-disc list-inside">
+                    <li>Clique no ícone de cadeado ou câmera na barra de endereço</li>
+                    <li>Selecione "Permitir" para acesso à câmera</li>
+                    <li>Recarregue a página e tente novamente</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Botão de Fechar no rodapé */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => {
+                  setIsClosing(true)
+                  setTimeout(() => {
+                    setError(null)
+                    setIsClosing(false)
+                  }, 400)
+                }}
+                className="px-6 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-medium transition-colors"
+              >
+                Fechar
+              </button>
             </div>
           </div>
         </div>

@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import Button from '../components/Button'
 import { useUsers } from '../hooks/useUsers'
 import { useErrorNotification } from '../hooks/useErrorNotification'
-import { rolesService, Role } from '../services/roles'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -17,22 +16,7 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    companyId: '',
-    roleId: '',
   })
-  const [roles, setRoles] = useState<Role[]>([])
-
-  useEffect(() => {
-    loadRoles()
-  }, [])
-
-  const loadRoles = async () => {
-    try {
-      const data = await rolesService.getAllRoles()
-      setRoles(data)
-    } catch (err) {
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,17 +32,11 @@ export default function Register() {
       return
     }
 
-    if (!formData.roleId) {
-      showError('Por favor, selecione um papel')
-      return
-    }
-
     try {
       await createUser({
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        roleId: parseInt(formData.roleId, 10),
       })
       // Redirecionar para login após cadastro bem-sucedido
       navigate('/login?registered=true')
@@ -173,27 +151,6 @@ export default function Register() {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-            </div>
-
-            {/* Role */}
-            <div>
-              <label htmlFor="roleId" className="block text-sm font-medium text-gray-300 mb-2">
-                Papel *
-              </label>
-              <select
-                id="roleId"
-                required
-                value={formData.roleId}
-                onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">Selecione um papel</option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Submit Button */}

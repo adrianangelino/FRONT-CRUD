@@ -8,6 +8,10 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   access_token?: string
+  role?: {
+    id: number
+    name: string
+  }
   user?: {
     id: string
     aud: string
@@ -66,6 +70,11 @@ export const authService = {
         localStorage.setItem('user_email', userEmail)
       }
       
+      // Salvar role ID para redirecionamento
+      if (response.role?.id) {
+        localStorage.setItem('user_role_id', String(response.role.id))
+      }
+      
       return response
     } catch (error: any) {
       throw error
@@ -75,6 +84,7 @@ export const authService = {
   logout(): void {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_email')
+    localStorage.removeItem('user_role_id')
   },
 
   getToken(): string | null {
@@ -83,6 +93,11 @@ export const authService = {
 
   getUserEmail(): string | null {
     return localStorage.getItem('user_email')
+  },
+
+  getUserRoleId(): number | null {
+    const roleId = localStorage.getItem('user_role_id')
+    return roleId ? parseInt(roleId, 10) : null
   },
 
   isAuthenticated(): boolean {
