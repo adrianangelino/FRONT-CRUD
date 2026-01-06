@@ -3,6 +3,14 @@ import { API_BASE_URL } from '../config/api'
 export interface ApiError {
   message: string
   status?: number
+  errorData?: {
+    message?: string
+    error?: string
+    statusCode?: number
+    [key: string]: any
+  }
+  url?: string
+  method?: string
 }
 
 class ApiClient {

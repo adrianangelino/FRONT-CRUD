@@ -2,11 +2,13 @@ import { useState, useCallback } from 'react'
 import { ticketsService, TicketResponse } from '../services/tickets'
 import { Ticket } from '../types'
 import { ApiError } from '../services/api'
+import { useErrorNotification } from './useErrorNotification'
 
 export function useTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showError } = useErrorNotification()
 
   const fetchTickets = useCallback(async () => {
     setLoading(true)
@@ -26,13 +28,14 @@ export function useTickets() {
       const apiError = err as ApiError
       const errorMessage = apiError.message || 'Erro ao carregar ingressos'
       setError(errorMessage)
+      showError(err)
       // Não relançar o erro para evitar "Uncaught (in promise)"
       // Apenas definir o estado de erro
       return []
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showError])
 
   const createTicket = async (data: Parameters<typeof ticketsService.createTicket>[0]) => {
     setLoading(true)
@@ -45,6 +48,7 @@ export function useTickets() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao criar ingresso')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -60,6 +64,7 @@ export function useTickets() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao verificar ingresso')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -75,6 +80,7 @@ export function useTickets() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao deletar ingresso')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -90,6 +96,7 @@ export function useTickets() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao buscar ingresso')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -105,6 +112,7 @@ export function useTickets() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao buscar ingresso por nome do usuário')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -120,6 +128,7 @@ export function useTickets() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao buscar ingresso por nome do usuário')
+      showError(err)
       throw err
     } finally {
       setLoading(false)

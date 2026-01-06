@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react'
 import { ticketTypesService, TicketTypeResponse, CreateTicketTypeRequest, GetTicketTypeByNameRequest } from '../services/ticketTypes'
 import { ApiError } from '../services/api'
+import { useErrorNotification } from './useErrorNotification'
 
 export function useTicketTypes() {
   const [ticketTypes, setTicketTypes] = useState<TicketTypeResponse[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showError } = useErrorNotification()
 
   const fetchTicketTypes = useCallback(async () => {
     setLoading(true)
@@ -18,11 +20,12 @@ export function useTicketTypes() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao carregar tipos de ticket')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showError])
 
   const createTicketType = async (data: CreateTicketTypeRequest) => {
     setLoading(true)
@@ -34,6 +37,7 @@ export function useTicketTypes() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao criar tipo de ticket')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -49,6 +53,7 @@ export function useTicketTypes() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao buscar tipo de ticket')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -64,6 +69,7 @@ export function useTicketTypes() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao deletar tipo de ticket')
+      showError(err)
       throw err
     } finally {
       setLoading(false)

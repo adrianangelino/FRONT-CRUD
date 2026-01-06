@@ -2,11 +2,13 @@ import { useState, useCallback } from 'react'
 import { eventsService } from '../services/events'
 import { Event } from '../types'
 import { ApiError } from '../services/api'
+import { useErrorNotification } from './useErrorNotification'
 
 export function useEvents() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showError } = useErrorNotification()
 
   const fetchEvents = useCallback(async () => {
     setLoading(true)
@@ -21,13 +23,14 @@ export function useEvents() {
       const apiError = err as ApiError
       const errorMessage = apiError.message || 'Erro ao carregar eventos'
       setError(errorMessage)
+      showError(err)
       // Não relançar o erro para evitar "Uncaught (in promise)"
       // Apenas definir o estado de erro
       return []
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showError])
 
   const createEvent = async (data: Parameters<typeof eventsService.createEvent>[0]) => {
     setLoading(true)
@@ -40,6 +43,7 @@ export function useEvents() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao criar evento')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -55,6 +59,7 @@ export function useEvents() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao deletar evento')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -70,6 +75,7 @@ export function useEvents() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao buscar evento')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -87,6 +93,7 @@ export function useEvents() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao atualizar evento')
+      showError(err)
       throw err
     } finally {
       setLoading(false)

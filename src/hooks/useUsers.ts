@@ -2,11 +2,13 @@ import { useState, useCallback } from 'react'
 import { usersService } from '../services/users'
 import { User } from '../types'
 import { ApiError } from '../services/api'
+import { useErrorNotification } from './useErrorNotification'
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showError } = useErrorNotification()
 
   const fetchUsers = async (params?: Parameters<typeof usersService.getUser>[0]) => {
     setLoading(true)
@@ -20,6 +22,7 @@ export function useUsers() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao carregar usuários')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -37,6 +40,7 @@ export function useUsers() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao criar usuário')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
@@ -55,11 +59,12 @@ export function useUsers() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao carregar usuários')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showError])
 
   const deleteUser = async (id: string) => {
     setLoading(true)
@@ -70,6 +75,7 @@ export function useUsers() {
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Erro ao deletar usuário')
+      showError(err)
       throw err
     } finally {
       setLoading(false)
