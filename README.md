@@ -192,3 +192,4 @@ Para mais detalhes sobre configuração da API, variáveis de ambiente e trouble
 
 Este projeto é de código aberto e está disponível sob a licença MIT.
 
+# FRONT-CRUD
