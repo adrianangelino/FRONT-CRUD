@@ -43,7 +43,8 @@ export default function Login() {
       const response = await login(formData)
       if (response.access_token) {
         // Redirecionar baseado no role ID
-        const roleId = response.role?.id
+        // Prioriza roleId do user, depois role.id do response
+        const roleId = response.user?.roleId || response.role?.id
         if (roleId === 1) {
           // Admin - acessa backoffice
           navigate('/admin/dashboard')

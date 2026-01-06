@@ -21,6 +21,7 @@ export interface LoginResponse {
     phone?: string
     confirmed_at?: string
     last_sign_in_at?: string
+    roleId?: number // ID do role do usuário
     app_metadata?: {
       provider: string
       providers: string[]
@@ -71,8 +72,10 @@ export const authService = {
       }
       
       // Salvar role ID para redirecionamento
-      if (response.role?.id) {
-        localStorage.setItem('user_role_id', String(response.role.id))
+      // Prioriza roleId do user, depois role.id do response
+      const roleId = response.user?.roleId || response.role?.id
+      if (roleId) {
+        localStorage.setItem('user_role_id', String(roleId))
       }
       
       return response
