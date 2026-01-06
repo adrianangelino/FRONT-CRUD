@@ -326,7 +326,7 @@ export default function CheckTicket() {
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Ou insira o código manualmente
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={manualHash}
@@ -343,6 +343,7 @@ export default function CheckTicket() {
                   variant="primary"
                   onClick={() => handleManualInput(manualHash)}
                   disabled={loading}
+                  className="w-full sm:w-auto"
                 >
                   Verificar
                 </Button>
