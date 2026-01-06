@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { LogIn, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
 import Button from '../components/Button'
 import { useAuth } from '../hooks/useAuth'
-import { API_BASE_URL } from '../config/api'
 
 export default function Login() {
   const navigate = useNavigate()

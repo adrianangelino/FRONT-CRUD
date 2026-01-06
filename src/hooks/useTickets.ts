@@ -51,11 +51,11 @@ export function useTickets() {
     }
   }
 
-  const checkTicket = async (code: string) => {
+  const checkTicket = async (hash: string) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await ticketsService.checkTicket({ code })
+      const response = await ticketsService.checkTicket({ hash })
       return ticketsService.mapToTicket(response)
     } catch (err) {
       const apiError = err as ApiError

@@ -20,7 +20,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, _errorInfo: any) {
     // Ignorar erros específicos do scanner QR code
     if (error.message?.includes('removeChild') || error.message?.includes('NotFoundError')) {
       // Este é um erro conhecido do conflito entre React e html5-qrcode
