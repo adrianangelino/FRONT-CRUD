@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import Notification, { NotificationData } from './Notification'
+import { useNotificationContext } from '../contexts/NotificationContext'
 
 let notificationIdCounter = 0
 
@@ -34,12 +35,9 @@ export function useNotification() {
   }
 }
 
-interface NotificationContainerProps {
-  notifications: NotificationData[]
-  onClose: (id: string) => void
-}
+export default function NotificationContainer() {
+  const { notifications, removeNotification } = useNotificationContext()
 
-export default function NotificationContainer({ notifications, onClose }: NotificationContainerProps) {
   if (notifications.length === 0) return null
 
   return (
@@ -48,7 +46,7 @@ export default function NotificationContainer({ notifications, onClose }: Notifi
         <Notification
           key={notification.id}
           notification={notification}
-          onClose={onClose}
+          onClose={removeNotification}
         />
       ))}
     </div>

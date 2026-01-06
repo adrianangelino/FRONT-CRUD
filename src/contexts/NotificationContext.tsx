@@ -1,13 +1,14 @@
 import { createContext, useContext, ReactNode } from 'react'
-import { useNotification } from '../components/NotificationContainer'
-import NotificationContainer from '../components/NotificationContainer'
+import { useNotification, NotificationData } from '../components/NotificationContainer'
 
 interface NotificationContextType {
+  notifications: NotificationData[]
   showNotification: (
     message: string,
     type?: 'error' | 'success' | 'info' | 'warning',
     duration?: number
   ) => string
+  removeNotification: (id: string) => void
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
@@ -16,12 +17,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const { notifications, showNotification, removeNotification } = useNotification()
 
   return (
-    <NotificationContext.Provider value={{ showNotification }}>
+    <NotificationContext.Provider value={{ notifications, showNotification, removeNotification }}>
       {children}
-      <NotificationContainer
-        notifications={notifications}
-        onClose={removeNotification}
-      />
     </NotificationContext.Provider>
   )
 }

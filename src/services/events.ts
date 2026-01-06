@@ -115,6 +115,7 @@ export const eventsService = {
     return {
       id: String(response.id),
       title: response.name || response.title || 'Evento sem nome',
+      name: response.name || response.title || 'Evento sem nome', // Adicionar campo name
       description: response.description || '',
       date: formattedDate,
       time: formattedTime,

@@ -1,6 +1,7 @@
 export interface Event {
   id: string;
   title: string;
+  name?: string; // Nome do evento (pode vir do backend como 'name')
   description: string;
   date: string;
   time: string;
@@ -20,8 +21,9 @@ export interface Ticket {
   buyerName: string;
   buyerEmail: string;
   purchaseDate: string;
-  status: 'valid' | 'used' | 'cancelled';
+  status: 'valid' | 'used' | 'cancelled' | 'pending';
   price?: number; // Preço do ticket
+  pdfUrl?: string; // URL do PDF do ticket
 }
 
 export interface User {

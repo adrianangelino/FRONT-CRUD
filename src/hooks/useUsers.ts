@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { usersService } from '../services/users'
 import { User } from '../types'
-import { ApiError } from '../services/api'
 import { useErrorNotification } from './useErrorNotification'
 
 export function useUsers() {

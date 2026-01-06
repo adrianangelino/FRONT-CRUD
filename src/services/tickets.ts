@@ -212,6 +212,7 @@ export const ticketsService = {
       purchaseDate: purchaseDate,
       status: ticketStatus,
       price: response.price,
+      pdfUrl: response.pdfUrl,
     }
   },
 }

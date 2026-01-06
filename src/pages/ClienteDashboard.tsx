@@ -123,7 +123,7 @@ export default function ClienteDashboard() {
                         <div className="text-sm text-gray-400">{ticket.buyerEmail}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-white">{event?.name || 'N/A'}</div>
+                        <div className="text-sm text-white">{event?.name || event?.title || 'N/A'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
