@@ -575,7 +575,6 @@ export default function Eventos() {
                     startTime: '',
                     endDate: '',
                     endTime: '',
-                    quantity: '',
                     ticketTypeId: '',
                   })
                 }}
