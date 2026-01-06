@@ -99,19 +99,12 @@ export default function Usuarios() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {user.role === 'admin' && (
-                          <button className="px-4 py-2 text-sm bg-gray-700 text-gray-300 border border-gray-600 rounded-lg hover:bg-gray-600 transition-colors">
-                            Remover Admin
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => handleDelete(user.id)}
-                          className="px-4 py-2 text-sm bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition-colors"
-                        >
-                          Excluir
-                        </button>
-                      </div>
+                      <button 
+                        onClick={() => handleDelete(user.id)}
+                        className="px-4 py-2 text-sm bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition-colors"
+                      >
+                        Excluir
+                      </button>
                     </td>
                   </tr>
                 ))
