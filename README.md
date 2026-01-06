@@ -109,8 +109,6 @@ npm install
      # Para desenvolvimento local (proxy do Vite)
      VITE_BACKEND_URL=http://localhost:3000
      
-     # Para produção (URL completa do backend)
-     VITE_API_BASE_URL=https://crud-desenvolvimento.up.railway.app
      ```
    - Em desenvolvimento, deixe `VITE_API_BASE_URL` vazio para usar o proxy
    - Em produção, defina `VITE_API_BASE_URL` com a URL do backend
@@ -201,3 +199,4 @@ Para mais detalhes sobre configuração da API, variáveis de ambiente e trouble
 Este projeto é de código aberto e está disponível sob a licença MIT.
 
 # FRONT-CRUD
+
