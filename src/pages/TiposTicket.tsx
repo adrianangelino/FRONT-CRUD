@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Ticket, Plus, Trash2, X, AlertTriangle, Search } from 'lucide-react'
+import { Ticket, Plus, Trash2, X, AlertTriangle } from 'lucide-react'
 import Button from '../components/Button'
 import SearchBar from '../components/SearchBar'
 import { useTicketTypes } from '../hooks/useTicketTypes'

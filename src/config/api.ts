@@ -1,6 +1,6 @@
 // Configuração da API
 // Em desenvolvimento, usa URL relativa para o proxy do Vite funcionar
-// Em produção, usa a URL completa do backend
+// Em produção, usa a URL completa do backend definida em VITE_API_BASE_URL
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
   (import.meta.env.DEV ? '' : 'http://localhost:3000')
 

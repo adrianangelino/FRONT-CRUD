@@ -5,7 +5,7 @@ export interface TicketType {
   id: number
   name: string
   price: number
-  deadline: string // ISO date string
+  deadline?: string // ISO date string (opcional, pode vir de endDate)
   endDate?: string // ISO date string (from backend)
   companyId?: number
   quantity?: number
@@ -62,6 +62,22 @@ export const ticketTypesService = {
 
   async softDeleteTicketType(id: string): Promise<{ message: string }> {
     return apiClient.delete<{ message: string }>(API_ENDPOINTS.SOFT_DELETE_TICKET_TYPE(id))
+  },
+
+  // Helper para converter TicketTypeResponse para TicketType
+  mapToTicketType(response: TicketTypeResponse): TicketType {
+    return {
+      id: response.id,
+      name: response.name,
+      price: response.price,
+      deadline: response.endDate, // endDate do backend vira deadline no frontend
+      endDate: response.endDate,
+      companyId: response.companyId,
+      quantity: response.quantity,
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+      deletedAt: response.deletedAt,
+    }
   },
 }
 

@@ -52,7 +52,7 @@ export default function Eventos() {
   const loadTicketTypes = async () => {
     try {
       const data = await ticketTypesService.getAllTicketTypes()
-      setTicketTypes(data)
+      setTicketTypes(data.map(ticketTypesService.mapToTicketType))
     } catch (err: any) {
       // Não definir erro como mensagem crítica, apenas logar
       // O usuário ainda pode criar eventos mesmo sem tipos de ticket carregados

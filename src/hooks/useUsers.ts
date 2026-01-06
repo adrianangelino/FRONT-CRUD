@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { usersService, UserResponse } from '../services/users'
+import { usersService } from '../services/users'
 import { User } from '../types'
 import { ApiError } from '../services/api'
 

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { eventsService, EventResponse } from '../services/events'
+import { eventsService } from '../services/events'
 import { Event } from '../types'
 import { ApiError } from '../services/api'
 

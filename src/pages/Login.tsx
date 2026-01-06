@@ -192,7 +192,6 @@ export default function Login() {
               variant="primary"
               icon={<LogIn className="w-4 h-4" />}
               className="w-full justify-center"
-              onClick={handleSubmit}
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>

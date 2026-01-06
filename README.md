@@ -104,8 +104,16 @@ npm install
 
 3. Configure a URL da API:
    - Crie um arquivo `.env` na raiz do projeto
-   - Adicione a variável: `VITE_API_BASE_URL=http://localhost:3000`
-   - (Substitua pela URL do seu backend)
+   - Adicione as variáveis:
+     ```env
+     # Para desenvolvimento local (proxy do Vite)
+     VITE_BACKEND_URL=http://localhost:3000
+     
+     # Para produção (URL completa do backend)
+     VITE_API_BASE_URL=https://crud-desenvolvimento.up.railway.app
+     ```
+   - Em desenvolvimento, deixe `VITE_API_BASE_URL` vazio para usar o proxy
+   - Em produção, defina `VITE_API_BASE_URL` com a URL do backend
 
 4. Inicie o servidor de desenvolvimento:
 ```bash
