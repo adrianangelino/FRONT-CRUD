@@ -111,7 +111,6 @@ export default function Eventos() {
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
     try {
       // Validações
       if (!formData.name || !formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
@@ -188,7 +187,6 @@ export default function Eventos() {
 
   const handleUpdateEvent = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
     if (!editingEventId) return
 
     try {

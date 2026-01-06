@@ -54,7 +54,6 @@ export default function TiposTicket() {
 
   const handleCreateTicketType = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
     try {
       // Validações
       if (!formData.name || !formData.price || !formData.endDate || !formData.endTime) {

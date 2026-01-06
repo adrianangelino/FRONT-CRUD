@@ -79,7 +79,6 @@ export default function Ingressos() {
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMessage(null)
     
     try {
       // Validações dos campos obrigatórios
