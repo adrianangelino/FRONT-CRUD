@@ -521,20 +521,19 @@ export default function Eventos() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Tipo de Ticket *
                 </label>
-                  <select
-                    required
-                    value={formData.ticketTypeId}
-                    onChange={(e) => setFormData({ ...formData, ticketTypeId: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Selecione um tipo</option>
-                    {ticketTypes.map((ticketType) => (
-                      <option key={ticketType.id} value={ticketType.id}>
-                        {ticketType.name} - R$ {ticketType.price.toFixed(2)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  required
+                  value={formData.ticketTypeId}
+                  onChange={(e) => setFormData({ ...formData, ticketTypeId: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">Selecione um tipo</option>
+                  {ticketTypes.map((ticketType) => (
+                    <option key={ticketType.id} value={ticketType.id}>
+                      {ticketType.name} - R$ {ticketType.price.toFixed(2)}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-3 pt-4">
@@ -658,19 +657,18 @@ export default function Eventos() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Tipo de Ticket
                 </label>
-                  <select
-                    value={formData.ticketTypeId}
-                    onChange={(e) => setFormData({ ...formData, ticketTypeId: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Selecione um tipo</option>
-                    {ticketTypes.map((ticketType) => (
-                      <option key={ticketType.id} value={ticketType.id}>
-                        {ticketType.name} - R$ {ticketType.price.toFixed(2)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={formData.ticketTypeId}
+                  onChange={(e) => setFormData({ ...formData, ticketTypeId: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">Selecione um tipo</option>
+                  {ticketTypes.map((ticketType) => (
+                    <option key={ticketType.id} value={ticketType.id}>
+                      {ticketType.name} - R$ {ticketType.price.toFixed(2)}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-3 pt-4">
@@ -686,7 +684,6 @@ export default function Eventos() {
                       startTime: '',
                       endDate: '',
                       endTime: '',
-                      quantity: '',
                       ticketTypeId: '',
                     })
                   }}
