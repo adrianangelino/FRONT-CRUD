@@ -1,5 +1,6 @@
 import { createContext, useContext, ReactNode } from 'react'
-import { useNotification, NotificationData } from '../components/NotificationContainer'
+import { useNotification } from '../components/NotificationContainer'
+import { NotificationData } from '../components/Notification'
 
 interface NotificationContextType {
   notifications: NotificationData[]
