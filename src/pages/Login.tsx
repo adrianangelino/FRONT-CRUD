@@ -22,11 +22,6 @@ export default function Login() {
     const savedError = localStorage.getItem('login_error')
     if (savedError) {
       setPersistedError(savedError)
-      // Limpar após mostrar
-      setTimeout(() => {
-        localStorage.removeItem('login_error')
-        setPersistedError(null)
-      }, 30000) // Manter por 30 segundos
     }
   }, [])
 
@@ -97,47 +92,25 @@ export default function Login() {
               </div>
             )}
 
-            {/* Error Message - Mantém visível */}
+            {/* Error Message */}
             {(error || persistedError) && (
-              <div className="bg-red-500/20 border-2 border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm space-y-2">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500 animate-pulse" />
-                  <div className="flex-1">
-                    <p className="font-bold text-base mb-2">{error || persistedError}</p>
-                    <div className="mt-2 pt-2 border-t border-red-500/30 text-xs space-y-1">
-                      <p className="text-red-300 font-semibold">⚠️ Erro persistido no localStorage</p>
-                      <p className="text-red-300/80">Abra o console do navegador (F12) e execute:</p>
-                      <code className="block bg-gray-900 px-2 py-1 rounded mt-1 text-red-300 font-mono text-xs">
-                        localStorage.getItem('login_error')
-                      </code>
-                      <code className="block bg-gray-900 px-2 py-1 rounded mt-1 text-red-300 font-mono text-xs">
-                        JSON.parse(localStorage.getItem('login_error_details'))
-                      </code>
-                      {(error || persistedError)?.includes('conectar ao servidor') && (
-                        <>
-                          <p className="text-red-300 mt-2 font-semibold">Verifique:</p>
-                          <ul className="list-disc list-inside space-y-1 text-red-300/80">
-                            <li>O backend está rodando na porta 3000?</li>
-                            <li>A URL está correta? ({API_BASE_URL})</li>
-                            <li>Há algum firewall bloqueando a conexão?</li>
-                            <li>O CORS está configurado no backend?</li>
-                          </ul>
-                        </>
-                      )}
-                      <button
-                        onClick={() => {
-                          localStorage.removeItem('login_error')
-                          localStorage.removeItem('login_error_details')
-                          localStorage.removeItem('login_error_full')
-                          setPersistedError(null)
-                        }}
-                        className="mt-2 text-xs text-red-300 hover:text-red-200 underline"
-                      >
-                        Limpar erro persistido
-                      </button>
-                    </div>
-                  </div>
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-1">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
+                  <p className="text-sm">{error || persistedError}</p>
                 </div>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('login_error')
+                    localStorage.removeItem('login_error_details')
+                    localStorage.removeItem('login_error_full')
+                    setPersistedError(null)
+                  }}
+                  className="text-red-400 hover:text-red-300 transition-colors"
+                  title="Fechar"
+                >
+                  <span className="text-xl leading-none">&times;</span>
+                </button>
               </div>
             )}
 

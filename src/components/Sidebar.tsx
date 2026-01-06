@@ -7,7 +7,8 @@ import {
   LogOut,
   ChevronRight,
   Tag,
-  Building2
+  Building2,
+  QrCode
 } from 'lucide-react'
 import { useState } from 'react'
 import { authService } from '../services/auth'
@@ -25,6 +26,7 @@ const navItems: NavItem[] = [
   { path: '/admin/tipos-ticket', label: 'Tipos de Ticket', icon: Tag },
   { path: '/admin/usuarios', label: 'Usuários', icon: Users },
   { path: '/admin/empresa', label: 'Minha Empresa', icon: Building2 },
+  { path: '/admin/verificar-ingresso', label: 'Verificar Ingresso', icon: QrCode },
 ]
 
 export default function Sidebar() {

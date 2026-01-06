@@ -12,7 +12,7 @@ export interface CreateTicketRequest {
 }
 
 export interface CheckTicketRequest {
-  code: string
+  hash: string
 }
 
 export interface GetTicketByUserNameRequest {

@@ -6,6 +6,7 @@ import Ingressos from './pages/Ingressos'
 import Usuarios from './pages/Usuarios'
 import TiposTicket from './pages/TiposTicket'
 import CompanyProfile from './pages/CompanyProfile'
+import CheckTicket from './pages/CheckTicket'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -34,6 +35,7 @@ function App() {
           <Route path="usuarios" element={<Usuarios />} />
           <Route path="tipos-ticket" element={<TiposTicket />} />
           <Route path="empresa" element={<CompanyProfile />} />
+          <Route path="verificar-ingresso" element={<CheckTicket />} />
         </Route>
         
         {/* Default redirect */}
