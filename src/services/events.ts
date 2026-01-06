@@ -7,7 +7,6 @@ export interface CreateEventRequest {
   startDate: string // Data/hora de início (ISO string)
   endDate: string // Data/hora de término (ISO string)
   companyId: number // ID da empresa (obrigatório)
-  quantity: number // Quantidade de ingressos (obrigatório)
   ticketTypeId: number // ID do tipo de ticket (obrigatório)
   deletedAt?: string // Data de exclusão (opcional)
 }
@@ -28,7 +27,6 @@ export interface EventResponse {
   endDate: string
   ticketTypeId?: number // ID do tipo de ticket do evento
   companyId?: number // ID da empresa do evento
-  quantity?: number // Quantidade de ingressos
   createdAt?: string
   updatedAt?: string
   deletedAt?: string | null
@@ -99,7 +97,10 @@ export const eventsService = {
 
     // Determinar status baseado em deletedAt
     let status: 'active' | 'inactive' | 'cancelled' = 'active'
-    if (response.deletedAt) {
+    // Verificar se o evento foi deletado (deletedAt não é null nem undefined)
+    const isDeleted = response.deletedAt !== null && response.deletedAt !== undefined
+    
+    if (isDeleted) {
       status = 'cancelled'
     } else if (response.status) {
       status = response.status

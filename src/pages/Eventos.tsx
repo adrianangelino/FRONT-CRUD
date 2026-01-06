@@ -21,7 +21,6 @@ export default function Eventos() {
     startTime: '',
     endDate: '',
     endTime: '',
-    quantity: '',
     ticketTypeId: '',
   })
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([])
@@ -82,7 +81,6 @@ export default function Eventos() {
         startTime,
         endDate,
         endTime,
-        quantity: fullEvent.quantity ? String(fullEvent.quantity) : '',
         ticketTypeId: fullEvent.ticketTypeId ? String(fullEvent.ticketTypeId) : '',
       })
       setShowEditModal(true)
@@ -120,8 +118,8 @@ export default function Eventos() {
         return
       }
 
-      if (!formData.quantity || !formData.ticketTypeId) {
-        setErrorMessage('Por favor, informe a quantidade e selecione o tipo de ticket')
+      if (!formData.ticketTypeId) {
+        setErrorMessage('Por favor, selecione o tipo de ticket')
         return
       }
 
@@ -164,18 +162,11 @@ export default function Eventos() {
         return
       }
 
-      const quantity = parseInt(formData.quantity, 10)
-      if (isNaN(quantity) || quantity <= 0) {
-        setErrorMessage('A quantidade deve ser um número maior que zero')
-        return
-      }
-
       await createEvent({
         name: formData.name,
         startDate: startDateTime.toISOString(),
         endDate: endDateTime.toISOString(),
         companyId: companyId,
-        quantity,
         ticketTypeId: parseInt(formData.ticketTypeId, 10),
       })
       
@@ -186,7 +177,6 @@ export default function Eventos() {
         startTime: '',
         endDate: '',
         endTime: '',
-        quantity: '',
         ticketTypeId: '',
       })
       fetchEvents() // Recarregar eventos após criar
@@ -228,12 +218,6 @@ export default function Eventos() {
 
       // Incluir campos opcionais se preenchidos
       // companyId não é editável - vem do usuário logado
-      if (formData.quantity) {
-        const quantity = parseInt(formData.quantity, 10)
-        if (!isNaN(quantity) && quantity > 0) {
-          updateData.quantity = quantity
-        }
-      }
       if (formData.ticketTypeId) {
         updateData.ticketTypeId = parseInt(formData.ticketTypeId, 10)
       }
@@ -248,7 +232,6 @@ export default function Eventos() {
         startTime: '',
         endDate: '',
         endTime: '',
-        quantity: '',
         ticketTypeId: '',
       })
       fetchEvents() // Recarregar eventos após atualizar
@@ -534,25 +517,10 @@ export default function Eventos() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Quantidade de Ingressos *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="Ex: 100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Tipo de Ticket *
-                  </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Tipo de Ticket *
+                </label>
                   <select
                     required
                     value={formData.ticketTypeId}
@@ -686,24 +654,10 @@ export default function Eventos() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Quantidade de Ingressos
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="Ex: 100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Tipo de Ticket
-                  </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Tipo de Ticket
+                </label>
                   <select
                     value={formData.ticketTypeId}
                     onChange={(e) => setFormData({ ...formData, ticketTypeId: e.target.value })}
