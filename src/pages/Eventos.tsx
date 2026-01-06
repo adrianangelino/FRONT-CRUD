@@ -294,28 +294,6 @@ export default function Eventos() {
       />
 
       {/* Error Messages */}
-      {error && (
-        <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between">
-          <span>{error}</span>
-          <button
-            onClick={() => {}}
-            className="text-red-400 hover:text-red-300"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-      {errorMessage && (
-        <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between">
-          <span>{errorMessage}</span>
-          <button
-            onClick={() => setErrorMessage(null)}
-            className="text-red-400 hover:text-red-300"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Events Table */}
       <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">

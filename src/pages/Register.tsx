@@ -82,12 +82,6 @@ export default function Register() {
         {/* Register Form */}
         <div className="bg-gray-800 rounded-lg p-8 border border-gray-700">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Messages */}
-            {(error || formError) && (
-              <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm">
-                {formError || error}
-              </div>
-            )}
 
             {/* Name */}
             <div>

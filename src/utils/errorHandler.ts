@@ -38,23 +38,10 @@ export function getErrorMessage(error: unknown): string {
 
 /**
  * Determina o tipo de notificação baseado no status do erro
+ * Sempre retorna 'error' para destacar todos os erros em vermelho
  */
 export function getErrorType(error: unknown): 'error' | 'warning' | 'info' {
-  if (error && typeof error === 'object' && 'status' in error) {
-    const apiError = error as ApiError
-    const status = apiError.status || 0
-    
-    // 4xx são warnings (erros do cliente)
-    if (status >= 400 && status < 500) {
-      return 'warning'
-    }
-    
-    // 5xx são erros críticos (erros do servidor)
-    if (status >= 500) {
-      return 'error'
-    }
-  }
-  
+  // Sempre retornar 'error' para destacar em vermelho
   return 'error'
 }
 

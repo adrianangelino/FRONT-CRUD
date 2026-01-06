@@ -34,7 +34,7 @@ export default function CompanyProfile() {
   if (error || !companyData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-red-500/20 border border-red-500 text-red-400 px-6 py-4 rounded-lg">
+        <div className="hidden">
           {error || 'Não foi possível carregar os dados da empresa'}
         </div>
       </div>
