@@ -608,7 +608,6 @@ export default function Eventos() {
                     startTime: '',
                     endDate: '',
                     endTime: '',
-                    companyId: '',
                     quantity: '',
                     ticketTypeId: '',
                   })
@@ -733,7 +732,6 @@ export default function Eventos() {
                       startTime: '',
                       endDate: '',
                       endTime: '',
-                      companyId: '',
                       quantity: '',
                       ticketTypeId: '',
                     })
