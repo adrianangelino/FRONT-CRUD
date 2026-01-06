@@ -325,9 +325,7 @@ export default function Eventos() {
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Evento</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Data</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Local</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Preço</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Ingressos</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Status</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Ações</th>
               </tr>
@@ -335,13 +333,13 @@ export default function Eventos() {
             <tbody className="divide-y divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
                     Carregando...
                   </td>
                 </tr>
               ) : filteredEvents.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
                     Nenhum evento encontrado
                   </td>
                 </tr>
@@ -368,36 +366,9 @@ export default function Eventos() {
                       <p className="text-gray-400 text-sm">{event.time}</p>
                     </td>
                     <td className="px-6 py-4">
-                      {event.location && event.location !== 'Local não informado' ? (
-                        <>
-                          <p className="text-white text-sm">{event.location.split(',')[0]}</p>
-                          {event.location.includes(',') && (
-                            <p className="text-gray-400 text-sm">{event.location.split(',').slice(1).join(',').trim()}</p>
-                          )}
-                        </>
-                      ) : (
-                        <p className="text-gray-400 text-sm">Local não informado</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
                       <p className="text-white font-medium">
                         {event.price > 0 ? formatPrice(event.price) : 'Gratuito'}
                       </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      {event.totalTickets > 0 ? (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-gray-400" />
-                            <span className="text-white">{event.soldTickets}/{event.totalTickets}</span>
-                          </div>
-                          <p className="text-gray-400 text-sm mt-1">
-                            {event.totalTickets - event.soldTickets} disponíveis
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-gray-400 text-sm">Sem limite</p>
-                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
