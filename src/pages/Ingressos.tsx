@@ -25,7 +25,7 @@ export default function Ingressos() {
     buyerName: '',
     buyerEmail: '',
   })
-  const { tickets, loading, error, fetchTickets, deleteTicket, createTicket, getTicketByUserName, getTicketByUserNameResponse } = useTickets()
+  const { tickets, loading, error, fetchTickets, deleteTicket, createTicket, getTicketByUserNameResponse } = useTickets()
   const { events, fetchEvents } = useEvents()
 
   useEffect(() => {
