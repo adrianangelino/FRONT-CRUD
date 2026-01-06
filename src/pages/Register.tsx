@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import Button from '../components/Button'
 import { useUsers } from '../hooks/useUsers'
+import { useErrorNotification } from '../hooks/useErrorNotification'
 import { rolesService, Role } from '../services/roles'
 
 export default function Register() {
   const navigate = useNavigate()
-  const { createUser, loading, error } = useUsers()
+  const { createUser, loading } = useUsers()
+  const { showError } = useErrorNotification()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -19,7 +21,6 @@ export default function Register() {
     roleId: '',
   })
   const [roles, setRoles] = useState<Role[]>([])
-  const [formError, setFormError] = useState<string | null>(null)
 
   useEffect(() => {
     loadRoles()
@@ -35,21 +36,20 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setFormError(null)
 
     // Validações
     if (formData.password !== formData.confirmPassword) {
-      setFormError('As senhas não coincidem')
+      showError('As senhas não coincidem')
       return
     }
 
     if (formData.password.length < 6) {
-      setFormError('A senha deve ter pelo menos 6 caracteres')
+      showError('A senha deve ter pelo menos 6 caracteres')
       return
     }
 
     if (!formData.roleId) {
-      setFormError('Por favor, selecione um papel')
+      showError('Por favor, selecione um papel')
       return
     }
 

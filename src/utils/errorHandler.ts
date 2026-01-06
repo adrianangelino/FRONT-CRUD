@@ -40,7 +40,7 @@ export function getErrorMessage(error: unknown): string {
  * Determina o tipo de notificação baseado no status do erro
  * Sempre retorna 'error' para destacar todos os erros em vermelho
  */
-export function getErrorType(error: unknown): 'error' | 'warning' | 'info' {
+export function getErrorType(_error: unknown): 'error' | 'warning' | 'info' {
   // Sempre retornar 'error' para destacar em vermelho
   return 'error'
 }

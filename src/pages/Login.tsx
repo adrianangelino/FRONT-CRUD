@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { LogIn, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
+import { LogIn, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react'
 import Button from '../components/Button'
 import { useAuth } from '../hooks/useAuth'
+import { useErrorNotification } from '../hooks/useErrorNotification'
 
 export default function Login() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { login, loading, error } = useAuth()
+  const { login, loading } = useAuth()
+  const { showError } = useErrorNotification()
   const [showPassword, setShowPassword] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [persistedError, setPersistedError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,9 +21,12 @@ export default function Login() {
   useEffect(() => {
     const savedError = localStorage.getItem('login_error')
     if (savedError) {
-      setPersistedError(savedError)
+      showError(savedError)
+      localStorage.removeItem('login_error')
+      localStorage.removeItem('login_error_details')
+      localStorage.removeItem('login_error_full')
     }
-  }, [])
+  }, [showError])
 
   useEffect(() => {
     if (searchParams.get('registered') === 'true') {
@@ -41,30 +45,8 @@ export default function Login() {
         navigate('/admin/dashboard')
       }
     } catch (err: any) {
-      // Salvar erro no localStorage para persistir mesmo após reload
-      const errorMessage = err?.message || 'Erro desconhecido ao fazer login'
-      const errorDetails = {
-        message: errorMessage,
-        status: err?.status,
-        timestamp: new Date().toISOString(),
-        email: formData.email,
-        stack: err?.stack,
-        fullError: err?.toString(),
-      }
-      
-      localStorage.setItem('login_error', errorMessage)
-      localStorage.setItem('login_error_details', JSON.stringify(errorDetails))
-      
-      // Tentar stringify do erro completo
-      try {
-        const serialized = JSON.stringify(err, Object.getOwnPropertyNames(err), 2)
-        localStorage.setItem('login_error_full', serialized)
-      } catch (stringifyError) {
-        // Erro ao serializar
-      }
-      
-      // Atualizar estado para mostrar erro persistido
-      setPersistedError(errorMessage)
+      // Exibir erro via notificação
+      showError(err)
     }
   }
 

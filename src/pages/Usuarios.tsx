@@ -5,7 +5,7 @@ import { useUsers } from '../hooks/useUsers'
 
 export default function Usuarios() {
   const [searchTerm, setSearchTerm] = useState('')
-  const { users, loading, error, fetchAllUsers, deleteUser } = useUsers()
+  const { users, loading, fetchAllUsers, deleteUser } = useUsers()
 
   useEffect(() => {
     fetchAllUsers()

@@ -3,6 +3,7 @@ import { Calendar, Plus, Edit, Trash2, Eye, X, AlertTriangle } from 'lucide-reac
 import Button from '../components/Button'
 import SearchBar from '../components/SearchBar'
 import { useEvents } from '../hooks/useEvents'
+import { useErrorNotification } from '../hooks/useErrorNotification'
 import { eventsService } from '../services/events'
 import { ticketTypesService, TicketType } from '../services/ticketTypes'
 import { authService } from '../services/auth'
@@ -24,8 +25,8 @@ export default function Eventos() {
     ticketTypeId: '',
   })
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([])
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const { events, loading, error, fetchEvents, deleteEvent, createEvent, updateEvent, getEventById } = useEvents()
+  const { events, loading, fetchEvents, deleteEvent, createEvent, updateEvent, getEventById } = useEvents()
+  const { showError } = useErrorNotification()
 
   useEffect(() => {
     fetchEvents().catch(() => {})
@@ -41,7 +42,7 @@ export default function Eventos() {
       // Não definir erro como mensagem crítica, apenas logar
       // O usuário ainda pode criar eventos mesmo sem tipos de ticket carregados
       if (err?.message && !err.message.includes('conexão')) {
-        setErrorMessage(`Aviso: Não foi possível carregar a lista de tipos de ticket. ${err.message}`)
+        showError(`Aviso: Não foi possível carregar a lista de tipos de ticket. ${err.message}`)
       }
     }
   }
@@ -85,7 +86,7 @@ export default function Eventos() {
       })
       setShowEditModal(true)
     } catch (err) {
-      setErrorMessage('Erro ao carregar dados do evento')
+      showError('Erro ao carregar dados do evento')
     }
   }
 
@@ -102,7 +103,7 @@ export default function Eventos() {
       setShowDeleteModal(false)
       setEventToDelete(null)
     } catch (err) {
-      setErrorMessage('Erro ao deletar evento')
+      showError('Erro ao deletar evento')
       setShowDeleteModal(false)
       setEventToDelete(null)
     }
@@ -114,12 +115,12 @@ export default function Eventos() {
     try {
       // Validações
       if (!formData.name || !formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
-        setErrorMessage('Por favor, preencha todos os campos obrigatórios')
+        showError('Por favor, preencha todos os campos obrigatórios')
         return
       }
 
       if (!formData.ticketTypeId) {
-        setErrorMessage('Por favor, selecione o tipo de ticket')
+        showError('Por favor, selecione o tipo de ticket')
         return
       }
 
@@ -140,12 +141,12 @@ export default function Eventos() {
           throw new Error('Usuário logado não possui companyId')
         }
       } catch (err) {
-        setErrorMessage('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
+        showError('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
         return
       }
 
       if (!companyId || isNaN(companyId)) {
-        setErrorMessage('Não foi possível obter a empresa do usuário logado.')
+        showError('Não foi possível obter a empresa do usuário logado.')
         return
       }
 
@@ -153,12 +154,12 @@ export default function Eventos() {
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`)
 
       if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-        setErrorMessage('Por favor, insira datas e horários válidos')
+        showError('Por favor, insira datas e horários válidos')
         return
       }
 
       if (endDateTime <= startDateTime) {
-        setErrorMessage('A data de término deve ser posterior à data de início')
+        showError('A data de término deve ser posterior à data de início')
         return
       }
 
@@ -181,7 +182,7 @@ export default function Eventos() {
       })
       fetchEvents() // Recarregar eventos após criar
     } catch (err) {
-      setErrorMessage('Erro ao criar evento. Verifique os dados e tente novamente.')
+      showError('Erro ao criar evento. Verifique os dados e tente novamente.')
     }
   }
 
@@ -193,7 +194,7 @@ export default function Eventos() {
     try {
       // Converter data e hora para o formato ISO esperado pelo backend
       if (!formData.name || !formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
-        setErrorMessage('Por favor, preencha todos os campos obrigatórios')
+        showError('Por favor, preencha todos os campos obrigatórios')
         return
       }
 
@@ -201,12 +202,12 @@ export default function Eventos() {
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`)
 
       if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-        setErrorMessage('Por favor, insira datas e horários válidos')
+        showError('Por favor, insira datas e horários válidos')
         return
       }
 
       if (endDateTime <= startDateTime) {
-        setErrorMessage('A data de término deve ser posterior à data de início')
+        showError('A data de término deve ser posterior à data de início')
         return
       }
 
@@ -236,7 +237,7 @@ export default function Eventos() {
       })
       fetchEvents() // Recarregar eventos após atualizar
     } catch (err) {
-      setErrorMessage('Erro ao atualizar evento. Verifique os dados e tente novamente.')
+      showError('Erro ao atualizar evento. Verifique os dados e tente novamente.')
     }
   }
 

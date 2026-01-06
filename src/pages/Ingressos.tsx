@@ -4,6 +4,7 @@ import Button from '../components/Button'
 import SearchBar from '../components/SearchBar'
 import { useTickets } from '../hooks/useTickets'
 import { useEvents } from '../hooks/useEvents'
+import { useErrorNotification } from '../hooks/useErrorNotification'
 import { usersService } from '../services/users'
 import { authService } from '../services/auth'
 import { eventsService } from '../services/events'
@@ -17,7 +18,6 @@ export default function Ingressos() {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [ticketToDelete, setTicketToDelete] = useState<{ id: string; code: string } | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null)
   const [selectedTicketResponse, setSelectedTicketResponse] = useState<TicketResponse | null>(null)
   const [formData, setFormData] = useState({
@@ -25,8 +25,9 @@ export default function Ingressos() {
     buyerName: '',
     buyerEmail: '',
   })
-  const { tickets, loading, error, fetchTickets, deleteTicket, createTicket, getTicketByUserNameResponse } = useTickets()
+  const { tickets, loading, fetchTickets, deleteTicket, createTicket, getTicketByUserNameResponse } = useTickets()
   const { events, fetchEvents } = useEvents()
+  const { showError } = useErrorNotification()
 
   useEffect(() => {
     fetchTickets().catch(() => {
@@ -58,7 +59,7 @@ export default function Ingressos() {
       setShowDeleteModal(false)
       setTicketToDelete(null)
     } catch (err) {
-      setErrorMessage('Erro ao deletar ingresso')
+      showError('Erro ao deletar ingresso')
       setShowDeleteModal(false)
       setTicketToDelete(null)
     }
@@ -72,7 +73,7 @@ export default function Ingressos() {
       setSelectedTicketResponse(ticketResponse)
       setShowDetailsModal(true)
     } catch (err) {
-      setErrorMessage('Erro ao carregar detalhes do ingresso')
+      showError('Erro ao carregar detalhes do ingresso')
     }
   }
 
@@ -85,7 +86,7 @@ export default function Ingressos() {
       const eventIdNumber = Number(formData.eventId)
       
       if (isNaN(eventIdNumber) || eventIdNumber <= 0) {
-        setErrorMessage('Por favor, selecione um evento válido')
+        showError('Por favor, selecione um evento válido')
         return
       }
       
@@ -93,19 +94,19 @@ export default function Ingressos() {
       const buyerEmail = formData.buyerEmail?.trim()
       
       if (!buyerName || buyerName.length === 0) {
-        setErrorMessage('Por favor, preencha o nome do comprador')
+        showError('Por favor, preencha o nome do comprador')
         return
       }
       
       if (!buyerEmail || buyerEmail.length === 0) {
-        setErrorMessage('Por favor, preencha o email do comprador')
+        showError('Por favor, preencha o email do comprador')
         return
       }
       
       // Validar formato de email básico
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(buyerEmail)) {
-        setErrorMessage('Por favor, insira um email válido')
+        showError('Por favor, insira um email válido')
         return
       }
       
@@ -124,12 +125,12 @@ export default function Ingressos() {
           throw new Error('Usuário não encontrado')
         }
       } catch (err) {
-        setErrorMessage(`Usuário com email "${buyerEmail}" não encontrado. Por favor, verifique se o email está correto ou crie o usuário primeiro.`)
+        showError(`Usuário com email "${buyerEmail}" não encontrado. Por favor, verifique se o email está correto ou crie o usuário primeiro.`)
         return
       }
       
       if (!userId || isNaN(userId)) {
-        setErrorMessage('Não foi possível obter o ID do usuário. Por favor, tente novamente.')
+        showError('Não foi possível obter o ID do usuário. Por favor, tente novamente.')
         return
       }
 
@@ -153,17 +154,17 @@ export default function Ingressos() {
       } catch (err: any) {
         // Mostrar a mensagem de erro real
         const errorMsg = err?.message || 'Erro ao buscar dados do evento'
-        setErrorMessage(errorMsg)
+        showError(errorMsg)
         return
       }
 
       if (!ticketTypeId || isNaN(ticketTypeId)) {
-        setErrorMessage('O evento selecionado não possui um tipo de ticket válido.')
+        showError('O evento selecionado não possui um tipo de ticket válido.')
         return
       }
 
       if (!ticketTypeId || isNaN(ticketTypeId)) {
-        setErrorMessage('O evento selecionado não possui um tipo de ticket válido.')
+        showError('O evento selecionado não possui um tipo de ticket válido.')
         return
       }
 
@@ -184,12 +185,12 @@ export default function Ingressos() {
           throw new Error('Usuário logado não possui companyId')
         }
       } catch (err) {
-        setErrorMessage('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
+        showError('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
         return
       }
 
       if (!companyId || isNaN(companyId)) {
-        setErrorMessage('Não foi possível obter a empresa do usuário logado.')
+        showError('Não foi possível obter a empresa do usuário logado.')
         return
       }
       
@@ -208,7 +209,7 @@ export default function Ingressos() {
       
       // Validar antes de enviar
       if (isNaN(ticketData.eventId) || isNaN(ticketData.userId) || isNaN(ticketData.companyId) || isNaN(ticketData.ticketTypeId)) {
-        setErrorMessage('Erro: Algum dos valores numéricos é inválido. Verifique os dados.')
+        showError('Erro: Algum dos valores numéricos é inválido. Verifique os dados.')
         return
       }
       
@@ -221,7 +222,7 @@ export default function Ingressos() {
       })
       fetchTickets()
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Erro ao criar ingresso. Tente novamente.')
+      showError(err?.message || 'Erro ao criar ingresso. Tente novamente.')
     }
   }
 

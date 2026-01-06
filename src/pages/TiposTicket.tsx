@@ -3,6 +3,7 @@ import { Ticket, Plus, Trash2, X, AlertTriangle } from 'lucide-react'
 import Button from '../components/Button'
 import SearchBar from '../components/SearchBar'
 import { useTicketTypes } from '../hooks/useTicketTypes'
+import { useErrorNotification } from '../hooks/useErrorNotification'
 import { authService } from '../services/auth'
 import { usersService } from '../services/users'
 
@@ -11,7 +12,6 @@ export default function TiposTicket() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [ticketTypeToDelete, setTicketTypeToDelete] = useState<{ id: string; name: string } | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -20,7 +20,8 @@ export default function TiposTicket() {
     quantity: '',
   })
 
-  const { ticketTypes, loading, error, fetchTicketTypes, createTicketType, deleteTicketType } = useTicketTypes()
+  const { ticketTypes, loading, fetchTicketTypes, createTicketType, deleteTicketType } = useTicketTypes()
+  const { showError } = useErrorNotification()
 
   useEffect(() => {
     fetchTicketTypes()
@@ -45,7 +46,7 @@ export default function TiposTicket() {
       setShowDeleteModal(false)
       setTicketTypeToDelete(null)
     } catch (err) {
-      setErrorMessage('Erro ao deletar tipo de ticket')
+      showError('Erro ao deletar tipo de ticket')
       setShowDeleteModal(false)
       setTicketTypeToDelete(null)
     }
@@ -57,12 +58,12 @@ export default function TiposTicket() {
     try {
       // Validações
       if (!formData.name || !formData.price || !formData.endDate || !formData.endTime) {
-        setErrorMessage('Por favor, preencha todos os campos obrigatórios')
+        showError('Por favor, preencha todos os campos obrigatórios')
         return
       }
 
       if (!formData.quantity) {
-        setErrorMessage('Por favor, informe a quantidade')
+        showError('Por favor, informe a quantidade')
         return
       }
 
@@ -83,31 +84,31 @@ export default function TiposTicket() {
           throw new Error('Usuário logado não possui companyId')
         }
       } catch (err) {
-        setErrorMessage('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
+        showError('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
         return
       }
 
       if (!companyId || isNaN(companyId)) {
-        setErrorMessage('Não foi possível obter a empresa do usuário logado.')
+        showError('Não foi possível obter a empresa do usuário logado.')
         return
       }
 
       const price = parseFloat(formData.price)
       if (isNaN(price) || price < 0) {
-        setErrorMessage('O preço deve ser um número válido maior ou igual a zero')
+        showError('O preço deve ser um número válido maior ou igual a zero')
         return
       }
 
       const quantity = parseInt(formData.quantity, 10)
       if (isNaN(quantity) || quantity <= 0) {
-        setErrorMessage('A quantidade deve ser um número maior que zero')
+        showError('A quantidade deve ser um número maior que zero')
         return
       }
 
       // Combinar data e hora em ISO string
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`)
       if (isNaN(endDateTime.getTime())) {
-        setErrorMessage('Por favor, insira uma data e hora válidas')
+        showError('Por favor, insira uma data e hora válidas')
         return
       }
 
@@ -129,7 +130,7 @@ export default function TiposTicket() {
       })
       fetchTicketTypes() // Recarregar tipos de ticket após criar
     } catch (err) {
-      setErrorMessage('Erro ao criar tipo de ticket. Verifique os dados e tente novamente.')
+      showError('Erro ao criar tipo de ticket. Verifique os dados e tente novamente.')
     }
   }
 
