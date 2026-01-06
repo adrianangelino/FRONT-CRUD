@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ticketsService } from '../services/tickets'
+import { ticketsService, TicketResponse } from '../services/tickets'
 import { Ticket } from '../types'
 import { ApiError } from '../services/api'
 
@@ -15,7 +15,7 @@ export function useTickets() {
       const response = await ticketsService.getAllTickets()
       const ticketsArray = Array.isArray(response) ? response : [response]
       
-      // Mapear tickets diretamente - eventTitle será preenchido pelo backend ou pode ser adicionado depois
+      // Mapear tickets usando apenas os dados do response (sem buscas adicionais)
       const mappedTickets = ticketsArray.map(ticket => {
         return ticketsService.mapToTicket(ticket)
       })
@@ -111,6 +111,21 @@ export function useTickets() {
     }
   }
 
+  const getTicketByUserNameResponse = async (name: string): Promise<TicketResponse> => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await ticketsService.getTicketByUserName({ name })
+      return response
+    } catch (err) {
+      const apiError = err as ApiError
+      setError(apiError.message || 'Erro ao buscar ingresso por nome do usuário')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     tickets,
     loading,
@@ -121,6 +136,7 @@ export function useTickets() {
     deleteTicket,
     getTicketById,
     getTicketByUserName,
+    getTicketByUserNameResponse,
   }
 }
 

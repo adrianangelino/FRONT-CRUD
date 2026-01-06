@@ -28,8 +28,9 @@ export interface TicketResponse {
   deletedAt?: string | null
   eventId: string | number
   userId: string | number
-  price?: number // Preço do ticket
+  companyId?: number // ID da empresa
   ticketTypeId?: number // ID do tipo de ticket
+  price?: number // Preço do ticket
   createdAt?: string
   updatedAt?: string
   // Campos opcionais que podem vir de joins ou transformações
@@ -154,37 +155,59 @@ export const ticketsService = {
   // Helper para converter TicketResponse para Ticket
   mapToTicket(response: TicketResponse): Ticket {
     // Mapear status do backend para o formato esperado
+    // Prioridade: deletedAt > status
     let ticketStatus: 'valid' | 'used' | 'cancelled' = 'valid'
-    if (response.status) {
-      const statusLower = response.status.toLowerCase()
+    
+    // Verificar se o ticket foi deletado
+    // deletedAt deve ser null ou undefined para não estar deletado
+    // Se tiver qualquer outro valor (string, data, etc), está deletado
+    const isDeleted = response.deletedAt !== null && 
+                      response.deletedAt !== undefined
+    
+    if (isDeleted) {
+      ticketStatus = 'cancelled'
+    } else if (response.status) {
+      // Se não foi deletado, verificar o status
+      const statusLower = String(response.status).toLowerCase().trim()
       if (statusLower === 'used') {
         ticketStatus = 'used'
-      } else if (statusLower === 'cancelled' || statusLower === 'deleted' || response.deletedAt) {
+      } else if (statusLower === 'cancelled' || statusLower === 'deleted') {
         ticketStatus = 'cancelled'
+      } else if (statusLower === 'pending') {
+        ticketStatus = 'valid' // pending é tratado como válido
       } else {
         ticketStatus = 'valid'
       }
     }
     
-    // Usar hash como code se code não estiver disponível
-    const code = response.code || response.hash || ''
+    // Usar hash como code (o backend retorna hash, não code)
+    const code = response.hash || response.code || ''
     
-    // Formatar data de compra se disponível
+    // Formatar data de compra se disponível (createdAt não vem no response, então fica vazio)
     let purchaseDate = response.purchaseDate || ''
     if (!purchaseDate && response.createdAt) {
       try {
-        purchaseDate = new Date(response.createdAt).toLocaleDateString('pt-BR')
+        purchaseDate = new Date(response.createdAt).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
       } catch {
         purchaseDate = response.createdAt
       }
     }
     
+    // Usar eventId como eventTitle se não houver eventTitle no response
+    const eventTitle = response.eventTitle || `Evento ID: ${response.eventId}`
+    
     return {
       id: String(response.id || ''),
       code: code,
       eventId: String(response.eventId || ''),
-      eventTitle: response.eventTitle || 'Evento não informado',
-      buyerName: response.buyerName || response.name || '',
+      eventTitle: eventTitle,
+      buyerName: response.name || response.buyerName || '',
       buyerEmail: response.buyerEmail || '',
       purchaseDate: purchaseDate,
       status: ticketStatus,

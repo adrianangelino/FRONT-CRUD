@@ -7,7 +7,9 @@ import { useEvents } from '../hooks/useEvents'
 import { usersService } from '../services/users'
 import { authService } from '../services/auth'
 import { eventsService } from '../services/events'
+import { ticketsService } from '../services/tickets'
 import { Ticket as TicketType } from '../types'
+import { TicketResponse } from '../services/tickets'
 
 export default function Ingressos() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -17,12 +19,13 @@ export default function Ingressos() {
   const [ticketToDelete, setTicketToDelete] = useState<{ id: string; code: string } | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null)
+  const [selectedTicketResponse, setSelectedTicketResponse] = useState<TicketResponse | null>(null)
   const [formData, setFormData] = useState({
     eventId: '',
     buyerName: '',
     buyerEmail: '',
   })
-  const { tickets, loading, error, fetchTickets, deleteTicket, createTicket, getTicketByUserName } = useTickets()
+  const { tickets, loading, error, fetchTickets, deleteTicket, createTicket, getTicketByUserName, getTicketByUserNameResponse } = useTickets()
   const { events, fetchEvents } = useEvents()
 
   useEffect(() => {
@@ -63,8 +66,10 @@ export default function Ingressos() {
 
   const handleViewDetails = async (buyerName: string) => {
     try {
-      const ticket = await getTicketByUserName(buyerName)
+      const ticketResponse = await getTicketByUserNameResponse(buyerName)
+      const ticket = ticketsService.mapToTicket(ticketResponse)
       setSelectedTicket(ticket)
+      setSelectedTicketResponse(ticketResponse)
       setShowDetailsModal(true)
     } catch (err) {
       setErrorMessage('Erro ao carregar detalhes do ingresso')
@@ -426,15 +431,16 @@ export default function Ingressos() {
       )}
 
       {/* Ticket Details Modal */}
-      {showDetailsModal && selectedTicket && (
+      {showDetailsModal && selectedTicket && selectedTicketResponse && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-lg border border-gray-700 w-full max-w-md">
+          <div className="bg-gray-800 rounded-lg border border-gray-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-700">
               <h2 className="text-xl font-bold text-white">Detalhes do Ingresso</h2>
               <button
                 onClick={() => {
                   setShowDetailsModal(false)
                   setSelectedTicket(null)
+                  setSelectedTicketResponse(null)
                 }}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -444,36 +450,52 @@ export default function Ingressos() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Código do Ingresso
+                  ID do Ingresso
                 </label>
-                <p className="text-white font-mono text-lg">{selectedTicket.code}</p>
+                <p className="text-white">{selectedTicketResponse.id}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Evento
+                  Código do Ingresso (Hash)
                 </label>
-                <p className="text-white">{selectedTicket.eventTitle || 'Evento não informado'}</p>
+                <p className="text-white font-mono text-sm break-all">{selectedTicketResponse.hash}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Comprador
+                  Nome do Comprador
                 </label>
-                <p className="text-white">{selectedTicket.buyerName}</p>
-                <p className="text-gray-400 text-sm">{selectedTicket.buyerEmail}</p>
+                <p className="text-white">{selectedTicketResponse.name}</p>
+              </div>
+
+              {selectedTicketResponse.createdAt && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                    Data de Compra e Criação
+                  </label>
+                  <p className="text-white font-semibold">
+                    {new Date(selectedTicketResponse.createdAt).toLocaleString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">
+                  Status (Backend)
+                </label>
+                <p className="text-white capitalize">{selectedTicketResponse.status || 'Não informado'}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Data de Compra
-                </label>
-                <p className="text-white">{selectedTicket.purchaseDate || 'Não informado'}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Status
+                  Status (Exibição)
                 </label>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
                   selectedTicket.status === 'valid' 
@@ -486,6 +508,80 @@ export default function Ingressos() {
                 </span>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">
+                  Data de Exclusão (deletedAt)
+                </label>
+                <p className="text-white">
+                  {selectedTicketResponse.deletedAt 
+                    ? new Date(selectedTicketResponse.deletedAt).toLocaleString('pt-BR')
+                    : 'Não deletado (null)'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">
+                  ID do Evento
+                </label>
+                <p className="text-white">{selectedTicketResponse.eventId}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">
+                  ID do Usuário
+                </label>
+                <p className="text-white">{selectedTicketResponse.userId}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">
+                  ID da Empresa
+                </label>
+                <p className="text-white">{selectedTicketResponse.companyId || 'Não informado'}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">
+                  ID do Tipo de Ticket
+                </label>
+                <p className="text-white">{selectedTicketResponse.ticketTypeId || 'Não informado'}</p>
+              </div>
+
+              {selectedTicketResponse.pdfUrl && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                    URL do PDF
+                  </label>
+                  <a 
+                    href={selectedTicketResponse.pdfUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-400 hover:text-primary-300 underline break-all text-sm"
+                  >
+                    {selectedTicketResponse.pdfUrl}
+                  </a>
+                </div>
+              )}
+
+              {selectedTicketResponse.price !== undefined && selectedTicketResponse.price !== null && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                    Preço
+                  </label>
+                  <p className="text-white">R$ {selectedTicketResponse.price.toFixed(2)}</p>
+                </div>
+              )}
+
+
+              {selectedTicketResponse.updatedAt && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                    Data de Atualização
+                  </label>
+                  <p className="text-white">{new Date(selectedTicketResponse.updatedAt).toLocaleString('pt-BR')}</p>
+                </div>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
@@ -493,6 +589,7 @@ export default function Ingressos() {
                   onClick={() => {
                     setShowDetailsModal(false)
                     setSelectedTicket(null)
+                    setSelectedTicketResponse(null)
                   }}
                   className="flex-1"
                 >
