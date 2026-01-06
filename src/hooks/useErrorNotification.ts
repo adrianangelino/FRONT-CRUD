@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useNotificationContext } from '../contexts/NotificationContext'
-import { ApiError } from '../services/api'
 import { getErrorMessage, getErrorType } from '../utils/errorHandler'
 
 /**
