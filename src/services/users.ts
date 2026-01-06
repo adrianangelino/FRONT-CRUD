@@ -15,11 +15,13 @@ export interface UserResponse {
   id: string | number
   name: string
   email: string
+  password?: string
   companyId?: number // ID da empresa do usuário
   roleId?: number // ID do papel/role do usuário
   registrationDate?: string
   createdAt?: string
-  role?: 'admin' | 'user'
+  deletedAt?: string | null
+  role?: 'admin' | 'user' | { id: number; name: string } // Pode ser string ou objeto com id e name
 }
 
 export interface GetUserParams {
@@ -67,12 +69,24 @@ export const usersService = {
       registrationDate = new Date().toLocaleDateString('pt-BR')
     }
 
+    // Extrair o nome do role (pode ser string ou objeto)
+    let roleName: 'admin' | 'user' = 'user'
+    if (response.role) {
+      if (typeof response.role === 'string') {
+        roleName = response.role as 'admin' | 'user'
+      } else if (typeof response.role === 'object' && response.role.name) {
+        // Se for objeto, usar o name e converter para 'admin' ou 'user'
+        const roleNameLower = response.role.name.toLowerCase()
+        roleName = roleNameLower === 'admin' ? 'admin' : 'user'
+      }
+    }
+
     return {
       id: String(response.id), // Converter para string
       name: response.name,
       email: response.email,
       registrationDate,
-      role: response.role || 'user',
+      role: roleName,
     }
   },
 }
