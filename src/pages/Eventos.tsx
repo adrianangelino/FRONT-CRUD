@@ -82,7 +82,6 @@ export default function Eventos() {
         startTime,
         endDate,
         endTime,
-        companyId: fullEvent.companyId ? String(fullEvent.companyId) : '',
         quantity: fullEvent.quantity ? String(fullEvent.quantity) : '',
         ticketTypeId: fullEvent.ticketTypeId ? String(fullEvent.ticketTypeId) : '',
       })
@@ -187,7 +186,6 @@ export default function Eventos() {
         startTime: '',
         endDate: '',
         endTime: '',
-        companyId: '',
         quantity: '',
         ticketTypeId: '',
       })
@@ -250,7 +248,6 @@ export default function Eventos() {
         startTime: '',
         endDate: '',
         endTime: '',
-        companyId: '',
         quantity: '',
         ticketTypeId: '',
       })

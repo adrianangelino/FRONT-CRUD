@@ -125,7 +125,6 @@ export default function TiposTicket() {
         price: '',
         endDate: '',
         endTime: '',
-        companyId: '',
         quantity: '',
       })
       fetchTicketTypes() // Recarregar tipos de ticket após criar
