@@ -62,6 +62,20 @@ export const eventsService = {
     }
   },
 
+  async getAllEventsForClients(): Promise<EventResponse[]> {
+    try {
+      const response = await apiClient.get<EventResponse[]>(API_ENDPOINTS.GET_ALL_EVENTS_FOR_CLIENTS)
+      return response
+    } catch (error: any) {
+      // Se o erro for "Nenhum evento válido", retornar array vazio em vez de lançar erro
+      if (error?.message === 'Nenhum evento válido' || error?.errorData?.message === 'Nenhum evento válido') {
+        return []
+      }
+      // Para outros erros, relançar
+      throw error
+    }
+  },
+
   async getEventById(id: string): Promise<EventResponse> {
     return apiClient.get<EventResponse>(API_ENDPOINTS.GET_EVENT_BY_ID(id))
   },

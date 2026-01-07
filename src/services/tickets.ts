@@ -121,6 +121,25 @@ export const ticketsService = {
     return apiClient.get<TicketResponse>(endpoint)
   },
 
+  async getTicketsByUserName(params: GetTicketByUserNameRequest): Promise<TicketResponse[]> {
+    const queryParams = new URLSearchParams()
+    if (params.name) queryParams.append('name', params.name)
+    
+    const endpoint = queryParams.toString() 
+      ? `${API_ENDPOINTS.GET_TICKET_BY_USER_NAME}?${queryParams.toString()}`
+      : API_ENDPOINTS.GET_TICKET_BY_USER_NAME
+    
+    const response = await apiClient.get<TicketResponse | TicketResponse[]>(endpoint)
+    // Se retornar um único objeto, converter para array
+    return Array.isArray(response) ? response : [response]
+  },
+
+  async getTicketsByUserId(userId: string | number): Promise<TicketResponse[]> {
+    const response = await apiClient.get<TicketResponse[]>(API_ENDPOINTS.GET_TICKETS_BY_USER_ID(userId))
+    // Garantir que sempre retorna um array
+    return Array.isArray(response) ? response : [response]
+  },
+
   async getTicketById(id: string): Promise<TicketResponse> {
     return apiClient.get<TicketResponse>(API_ENDPOINTS.GET_TICKET_BY_ID(id))
   },

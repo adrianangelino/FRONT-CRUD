@@ -135,11 +135,52 @@ export function useTickets() {
     }
   }
 
+  const fetchTicketsByUserName = useCallback(async (name: string) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await ticketsService.getTicketsByUserName({ name })
+      const ticketsArray = response.map(ticket => ticketsService.mapToTicket(ticket))
+      setTickets(ticketsArray)
+      return ticketsArray
+    } catch (err) {
+      const apiError = err as ApiError
+      const errorMessage = apiError.message || 'Erro ao carregar ingressos'
+      setError(errorMessage)
+      showError(err)
+      return []
+    } finally {
+      setLoading(false)
+    }
+  }, [showError])
+
+  const fetchTicketsByUserId = useCallback(async (userId: string | number) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await ticketsService.getTicketsByUserId(userId)
+      // Usar batch mapping para melhor performance
+      const ticketsArray = response.map(ticket => ticketsService.mapToTicket(ticket))
+      setTickets(ticketsArray)
+      return ticketsArray
+    } catch (err) {
+      const apiError = err as ApiError
+      const errorMessage = apiError.message || 'Erro ao carregar ingressos'
+      setError(errorMessage)
+      showError(err)
+      return []
+    } finally {
+      setLoading(false)
+    }
+  }, [showError])
+
   return {
     tickets,
     loading,
     error,
     fetchTickets,
+    fetchTicketsByUserName,
+    fetchTicketsByUserId,
     createTicket,
     checkTicket,
     deleteTicket,

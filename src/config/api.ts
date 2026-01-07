@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   // Events
   CREATE_EVENT: '/events/create-events',
   GET_ALL_EVENTS: '/events/getAllEvents',
+  GET_ALL_EVENTS_FOR_CLIENTS: '/events/GetAllEventsForClients',
   GET_EVENT_BY_ID: (id: string) => `/events/getEventById/${id}`,
   UPDATE_EVENT: (id: string) => `/events/updateEvent/${id}`,
   SOFT_DELETE_EVENT: (id: string) => `/events/softDeletedEvent/${id}`,
@@ -18,6 +19,7 @@ export const API_ENDPOINTS = {
   CHECK_TICKET: '/ticket/check-ticket',
   GET_ALL_TICKETS: '/ticket/getAlltickets',
   GET_TICKET_BY_USER_NAME: '/ticket/getTicketUserName/',
+  GET_TICKETS_BY_USER_ID: (userId: string | number) => `/ticket/GetTicketUserForId/${userId}`,
   GET_TICKET_BY_ID: (id: string) => `/ticket/getTicketById/${id}`,
   SOFT_DELETE_TICKET: (id: string) => `/ticket/softDeleted/${id}`,
   GET_EVENT_TICKET_SUMMARIES: '/ticket/event-ticket-summaries',

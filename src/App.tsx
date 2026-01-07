@@ -9,6 +9,7 @@ import TiposTicket from './pages/TiposTicket'
 import CompanyProfile from './pages/CompanyProfile'
 import CheckTicket from './pages/CheckTicket'
 import ClienteDashboard from './pages/ClienteDashboard'
+import EventosDisponiveis from './pages/EventosDisponiveis'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -66,6 +67,7 @@ function App() {
           >
             <Route index element={<Navigate to="/cliente/dashboard" replace />} />
             <Route path="dashboard" element={<ClienteDashboard />} />
+            <Route path="eventos" element={<EventosDisponiveis />} />
           </Route>
           
           {/* Default redirect */}
