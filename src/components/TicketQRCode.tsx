@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { QrCode, X, CheckCircle2 } from 'lucide-react'
 import { ticketsService } from '../services/tickets'
-import { useErrorNotification } from '../hooks/useErrorNotification'
 
 interface TicketQRCodeProps {
   ticketHash: string
