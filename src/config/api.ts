@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   CREATE_EVENT: '/events/create-events',
   GET_ALL_EVENTS: '/events/getAllEvents',
   GET_ALL_EVENTS_FOR_CLIENTS: '/events/GetAllEventsForClients',
+  GET_PUBLIC_EVENTS: '/events/public-events',
   GET_EVENT_BY_ID: (id: string) => `/events/getEventById/${id}`,
   UPDATE_EVENT: (id: string) => `/events/updateEvent/${id}`,
   SOFT_DELETE_EVENT: (id: string) => `/events/softDeletedEvent/${id}`,

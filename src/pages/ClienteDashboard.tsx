@@ -1,17 +1,19 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Calendar, User, Sparkles, Ticket } from 'lucide-react'
 import { useTickets } from '../hooks/useTickets'
-import { useEvents } from '../hooks/useEvents'
 import { authService } from '../services/auth'
 import { usersService } from '../services/users'
+import { eventsService } from '../services/events'
 import { useErrorNotification } from '../hooks/useErrorNotification'
+import { Event } from '../types'
 
 export default function ClienteDashboard() {
   const { tickets, loading: ticketsLoading, fetchTicketsByUserId } = useTickets()
-  const { events, loading: eventsLoading, fetchEvents } = useEvents()
   const { showError } = useErrorNotification()
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
+  const [events, setEvents] = useState<Event[]>([])
+  const [eventsLoading, setEventsLoading] = useState(false)
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -42,12 +44,27 @@ export default function ClienteDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Buscar eventos quando os tickets forem carregados
+  // Buscar eventos públicos quando os tickets forem carregados
   useEffect(() => {
-    if (tickets.length > 0 && events.length === 0 && !eventsLoading) {
-      fetchEvents().catch(() => {})
+    const fetchPublicEvents = async () => {
+      if (tickets.length > 0 && events.length === 0 && !eventsLoading) {
+        setEventsLoading(true)
+        try {
+          const response = await eventsService.getPublicEvents()
+          const eventsArray = Array.isArray(response) ? response : [response]
+          const mappedEvents = eventsArray.map(eventsService.mapToEvent)
+          setEvents(mappedEvents)
+        } catch (err) {
+          console.error('Erro ao buscar eventos públicos', err)
+          // Não mostrar erro ao usuário, apenas logar
+        } finally {
+          setEventsLoading(false)
+        }
+      }
     }
-  }, [tickets.length, events.length, eventsLoading, fetchEvents])
+    
+    fetchPublicEvents()
+  }, [tickets.length, events.length, eventsLoading])
 
   // Memoizar tickets do usuário
   const userTickets = useMemo(() => tickets, [tickets])
