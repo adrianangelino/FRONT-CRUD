@@ -16,6 +16,7 @@ export interface CreateTicketClientRequest {
   name: string // Nome do comprador (usado no PDF)
   eventId: number // ID do evento (obrigatório)
   ticketTypeId: number // ID do tipo de ticket (obrigatório, obtido do evento)
+  companyId?: number // ID da empresa do evento (opcional, obtido do evento)
 }
 
 export interface CheckTicketRequest {
@@ -136,11 +137,19 @@ export const ticketsService = {
     }
     
     // Montar payload
-    const ticketData = {
+    const ticketData: CreateTicketClientRequest = {
       email: normalizedEmail,
       name: name,
       eventId: eventId,
       ticketTypeId: ticketTypeId,
+    }
+    
+    // Adicionar companyId se fornecido
+    if (data.companyId !== undefined && data.companyId !== null) {
+      const companyId = Number(data.companyId)
+      if (!isNaN(companyId) && companyId > 0) {
+        ticketData.companyId = companyId
+      }
     }
     
     return apiClient.post<TicketResponse>(API_ENDPOINTS.CREATE_TICKET_CLIENT, ticketData)

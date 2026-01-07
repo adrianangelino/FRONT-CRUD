@@ -136,17 +136,28 @@ export default function EventosDisponiveis() {
     setPurchasing(true)
 
     try {
-      // Obter ticketTypeId do evento
+      // Obter ticketTypeId e companyId do evento
       let ticketTypeId: number | null = null
+      let companyId: number | null = null
       
-      if (selectedEventRaw && selectedEventRaw.ticketTypeId) {
-        ticketTypeId = Number(selectedEventRaw.ticketTypeId)
-      } else {
-        // Se não tiver no raw, buscar do backend
+      if (selectedEventRaw) {
+        if (selectedEventRaw.ticketTypeId) {
+          ticketTypeId = Number(selectedEventRaw.ticketTypeId)
+        }
+        if (selectedEventRaw.companyId) {
+          companyId = Number(selectedEventRaw.companyId)
+        }
+      }
+      
+      // Se não tiver no raw, buscar do backend
+      if (!ticketTypeId || !companyId) {
         try {
           const eventDetails = await eventsService.getEventById(String(selectedEvent.id))
-          if (eventDetails.ticketTypeId) {
+          if (eventDetails.ticketTypeId && !ticketTypeId) {
             ticketTypeId = Number(eventDetails.ticketTypeId)
+          }
+          if (eventDetails.companyId && !companyId) {
+            companyId = Number(eventDetails.companyId)
           }
         } catch (err) {
           // Continuar mesmo se não conseguir buscar
@@ -165,6 +176,7 @@ export default function EventosDisponiveis() {
         name: buyerName.trim(),
         eventId: Number(selectedEvent.id),
         ticketTypeId: Number(ticketTypeId),
+        ...(companyId && !isNaN(companyId) ? { companyId: companyId } : {}),
       }
 
       const ticketResponse = await ticketsService.createTicketClient(ticketData)
