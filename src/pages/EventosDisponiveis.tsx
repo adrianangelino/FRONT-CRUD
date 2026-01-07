@@ -284,10 +284,10 @@ export default function EventosDisponiveis() {
   })
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="animate-slideUpFromBottom">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+      <div className="animate-slideUpFromBottom mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <p className="text-sm text-green-400 mb-1">DESCUBRA</p>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
