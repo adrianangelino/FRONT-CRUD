@@ -16,6 +16,7 @@ export interface Event {
 export interface Ticket {
   id: string;
   code: string;
+  hash?: string; // Hash do ticket para QR code
   eventId: string;
   eventTitle: string;
   buyerName: string;

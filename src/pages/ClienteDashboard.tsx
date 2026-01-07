@@ -1,22 +1,31 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Calendar, User, Sparkles, Ticket } from 'lucide-react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { Calendar, User, Sparkles, Ticket, QrCode } from 'lucide-react'
 import { useTickets } from '../hooks/useTickets'
 import { authService } from '../services/auth'
 import { usersService } from '../services/users'
 import { eventsService } from '../services/events'
 import { useErrorNotification } from '../hooks/useErrorNotification'
 import { Event } from '../types'
+import TicketQRCode from '../components/TicketQRCode'
 
 export default function ClienteDashboard() {
   const { tickets, loading: ticketsLoading, fetchTicketsByUserId } = useTickets()
   const { showError } = useErrorNotification()
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | number | null>(null)
   const [events, setEvents] = useState<Event[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState<{ id: string; hash: string } | null>(null)
+  const [showQRCode, setShowQRCode] = useState(false)
+  const userDataLoadedRef = useRef(false)
 
   useEffect(() => {
+    // Evitar múltiplas chamadas no F5 (React Strict Mode executa 2x em dev)
+    if (userDataLoadedRef.current) return
+    
     const loadUserData = async () => {
+      userDataLoadedRef.current = true
       try {
         const email = authService.getUserEmail()
         setUserEmail(email)
@@ -28,15 +37,19 @@ export default function ClienteDashboard() {
           
           if (user && user.id) {
             setUserName(user.name)
+            // Salvar userId para usar no modal de QR code
+            const userIdValue = typeof user.id === 'string' ? user.id : String(user.id)
+            setUserId(userIdValue)
             // Buscar tickets do usuário pelo ID
-            const userId = typeof user.id === 'string' ? user.id : String(user.id)
-            await fetchTicketsByUserId(userId)
+            await fetchTicketsByUserId(userIdValue)
           } else {
             showError('Não foi possível obter os dados do usuário')
+            userDataLoadedRef.current = false
           }
         }
       } catch (err) {
         showError('Erro ao carregar dados do usuário')
+        userDataLoadedRef.current = false
       }
     }
     
@@ -44,10 +57,12 @@ export default function ClienteDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Buscar eventos públicos quando os tickets forem carregados
+  // Buscar eventos públicos quando os tickets forem carregados (apenas uma vez)
+  const eventsFetchedRef = useRef(false)
   useEffect(() => {
     const fetchPublicEvents = async () => {
-      if (tickets.length > 0 && events.length === 0 && !eventsLoading) {
+      if (tickets.length > 0 && events.length === 0 && !eventsLoading && !eventsFetchedRef.current) {
+        eventsFetchedRef.current = true
         setEventsLoading(true)
         try {
           const response = await eventsService.getPublicEvents()
@@ -56,7 +71,7 @@ export default function ClienteDashboard() {
           setEvents(mappedEvents)
         } catch (err) {
           console.error('Erro ao buscar eventos públicos', err)
-          // Não mostrar erro ao usuário, apenas logar
+          eventsFetchedRef.current = false // Resetar em caso de erro
         } finally {
           setEventsLoading(false)
         }
@@ -162,20 +177,30 @@ export default function ClienteDashboard() {
                 // Usar Map para lookup O(1) em vez de find O(n)
                 const event = eventsMap.get(ticket.eventId)
                 const eventName = event?.name || event?.title || 'N/A'
-                const statusClass = ticket.status === 'valid' 
+                const isUsed = ticket.status === 'used'
+                const statusClass = isUsed
+                  ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
+                  : ticket.status === 'valid' 
                   ? 'bg-green-500/20 text-green-400 border-green-500/30' 
                   : ticket.status === 'pending'
                   ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
                   : 'bg-red-500/20 text-red-400 border-red-500/30'
-                const statusText = ticket.status === 'valid' ? 'Válido' : ticket.status === 'pending' ? 'Pendente' : 'Inválido'
+                const statusText = isUsed ? 'Validado' : ticket.status === 'valid' ? 'Válido' : ticket.status === 'pending' ? 'Pendente' : 'Inválido'
+                const ticketHash = ticket.hash || ticket.code
                 
                 return (
                   <div
                     key={ticket.id}
-                    className={`ticket-card ticket-card-hover animate-slideUpFromBottom`}
+                    className={`ticket-card ticket-card-hover animate-slideUpFromBottom ${isUsed ? 'border-blue-500/50 bg-gradient-to-br from-blue-500/5 to-purple-500/5' : ticketHash ? 'cursor-pointer hover:border-green-500/50' : ''}`}
                     style={{ 
                       animationDelay: `${(index * 0.1)}s`,
                       opacity: 0
+                    }}
+                    onClick={() => {
+                      if (ticketHash && !isUsed) {
+                        setSelectedTicket({ id: ticket.id, hash: ticketHash })
+                        setShowQRCode(true)
+                      }
                     }}
                   >
                     <div className="ticket-card-content">
@@ -187,7 +212,14 @@ export default function ClienteDashboard() {
                           <p className="text-sm text-gray-400 mt-1">{ticket.buyerEmail}</p>
                         </div>
                         <div className="text-right">
-                          <Ticket className="w-8 h-8 text-purple-500" />
+                          {isUsed ? (
+                            <div className="relative">
+                              <Ticket className="w-8 h-8 text-blue-500" />
+                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-gray-800"></div>
+                            </div>
+                          ) : (
+                            <Ticket className="w-8 h-8 text-purple-500" />
+                          )}
                         </div>
                       </div>
 
@@ -212,8 +244,34 @@ export default function ClienteDashboard() {
                       </div>
 
                       {/* Ações */}
-                      {ticket.pdfUrl && (
-                        <div className="pt-4 border-t border-purple-500/20">
+                      <div className="pt-4 border-t border-purple-500/20 space-y-2">
+                        {ticketHash && !isUsed && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation() // Evitar que o clique no botão também dispare o clique do card
+                              setSelectedTicket({ id: ticket.id, hash: ticketHash })
+                              setShowQRCode(true)
+                            }}
+                            className="inline-flex items-center justify-center w-full px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 hover:text-green-300 rounded-lg font-medium transition-colors text-sm"
+                          >
+                            <QrCode className="w-4 h-4 mr-2" />
+                            Ver QR Code
+                          </button>
+                        )}
+                        {!ticketHash && !isUsed && (
+                          <div className="text-center py-2">
+                            <p className="text-xs text-gray-500">Hash não disponível</p>
+                          </div>
+                        )}
+                        {isUsed && (
+                          <div className="text-center py-2">
+                            <p className="text-xs text-blue-400 flex items-center justify-center gap-1">
+                              <Ticket className="w-4 h-4" />
+                              Ticket já validado
+                            </p>
+                          </div>
+                        )}
+                        {ticket.pdfUrl && (
                           <a
                             href={ticket.pdfUrl}
                             target="_blank"
@@ -223,8 +281,8 @@ export default function ClienteDashboard() {
                             <Ticket className="w-4 h-4 mr-2" />
                             Ver PDF
                           </a>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
@@ -233,6 +291,35 @@ export default function ClienteDashboard() {
           </div>
         )}
       </div>
+
+      {/* QR Code Modal */}
+      {selectedTicket && userId && (
+        <TicketQRCode
+          ticketHash={selectedTicket.hash}
+          ticketId={selectedTicket.id}
+          userId={userId}
+          isOpen={showQRCode}
+          onClose={() => {
+            setShowQRCode(false)
+            setSelectedTicket(null)
+          }}
+          onValidated={async () => {
+            // Recarregar tickets após validação
+            if (userEmail) {
+              try {
+                const userResponse = await usersService.getUser({ email: userEmail })
+                const user = Array.isArray(userResponse) ? userResponse[0] : userResponse
+                if (user && user.id) {
+                  const userId = typeof user.id === 'string' ? user.id : String(user.id)
+                  await fetchTicketsByUserId(userId)
+                }
+              } catch (err) {
+                console.error('Erro ao recarregar tickets', err)
+              }
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

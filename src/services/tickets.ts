@@ -187,8 +187,8 @@ export const ticketsService = {
     return Array.isArray(response) ? response : [response]
   },
 
-  async getTicketsByUserId(userId: string | number): Promise<TicketResponse[]> {
-    const response = await apiClient.get<TicketResponse[]>(API_ENDPOINTS.GET_TICKETS_BY_USER_ID(userId))
+  async getTicketsByUserId(userId: string | number, useCache: boolean = false): Promise<TicketResponse[]> {
+    const response = await apiClient.get<TicketResponse[]>(API_ENDPOINTS.GET_TICKETS_BY_USER_ID(userId), useCache)
     // Garantir que sempre retorna um array
     return Array.isArray(response) ? response : [response]
   },
@@ -277,6 +277,7 @@ export const ticketsService = {
     return {
       id: String(response.id || ''),
       code: code,
+      hash: response.hash || code,
       eventId: String(response.eventId || ''),
       eventTitle: eventTitle,
       buyerName: response.name || response.buyerName || '',
