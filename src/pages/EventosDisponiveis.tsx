@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Calendar, Clock, MapPin, Ticket, ShoppingCart, User, Mail, X, CheckCircle2, XCircle, Search } from 'lucide-react'
 import { useEventsForClients } from '../hooks/useEventsForClients'
 import { useErrorNotification } from '../hooks/useErrorNotification'
-import { useNotificationContext } from '../contexts/NotificationContext'
 import { ticketsService, TicketResponse } from '../services/tickets'
 import { usersService } from '../services/users'
 import { authService } from '../services/auth'
@@ -65,7 +64,6 @@ function Confetti() {
 export default function EventosDisponiveis() {
   const { events, eventsRaw, loading, fetchEventsForClients } = useEventsForClients()
   const { showError } = useErrorNotification()
-  const { showNotification } = useNotificationContext()
   const [showPurchaseModal, setShowPurchaseModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
   const [selectedEventRaw, setSelectedEventRaw] = useState<any>(null)
@@ -209,12 +207,6 @@ export default function EventosDisponiveis() {
       }
 
       const ticketResponse = await ticketsService.createTicket(ticketData)
-      
-      // Guardar informações do evento antes de limpar
-      const eventInfo = {
-        name: selectedEvent?.name || selectedEvent?.title || 'Evento',
-        id: selectedEvent?.id
-      }
       
       // Sucesso! Mostrar animação
       setShowPurchaseModal(false)
@@ -376,7 +368,7 @@ export default function EventosDisponiveis() {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-300">
                       <Calendar className="w-4 h-4 mr-2 text-green-500 icon-hover" />
-                      <span>{formatDate(event.date || event.startDate)}</span>
+                      <span>{formatDate(event.date || (rawEvent?.startDate || ''))}</span>
                     </div>
                     {event.time && (
                       <div className="flex items-center text-sm text-gray-300">
