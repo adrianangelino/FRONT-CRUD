@@ -11,6 +11,13 @@ export interface CreateTicketRequest {
   ticketTypeId: number // ID do tipo de ticket (obrigatório, obtido do evento)
 }
 
+export interface CreateTicketClientRequest {
+  email: string // Email do comprador
+  name: string // Nome do comprador (usado no PDF)
+  eventId: number // ID do evento (obrigatório)
+  ticketTypeId: number // ID do tipo de ticket (obrigatório, obtido do evento)
+}
+
 export interface CheckTicketRequest {
   hash: string
 }
@@ -100,6 +107,43 @@ export const ticketsService = {
     }
     
     return apiClient.post<TicketResponse>(API_ENDPOINTS.CREATE_TICKET, ticketData)
+  },
+
+  async createTicketClient(data: CreateTicketClientRequest): Promise<TicketResponse> {
+    // Normalizar email para minúsculas
+    const normalizedEmail = String(data.email || '').trim().toLowerCase()
+    
+    // Garantir que todos os campos numéricos sejam números válidos
+    const eventId = Number(data.eventId)
+    const ticketTypeId = Number(data.ticketTypeId)
+    
+    // Validações
+    if (!normalizedEmail || normalizedEmail.length === 0) {
+      throw new Error('Email é obrigatório para criar o ticket')
+    }
+    
+    const name = String(data.name || '').trim()
+    if (!name || name.length === 0) {
+      throw new Error('Nome é obrigatório para criar o ticket')
+    }
+    
+    if (isNaN(eventId) || eventId <= 0) {
+      throw new Error('EventId deve ser um número válido')
+    }
+    
+    if (isNaN(ticketTypeId) || ticketTypeId <= 0) {
+      throw new Error('TicketTypeId deve ser um número válido')
+    }
+    
+    // Montar payload
+    const ticketData = {
+      email: normalizedEmail,
+      name: name,
+      eventId: eventId,
+      ticketTypeId: ticketTypeId,
+    }
+    
+    return apiClient.post<TicketResponse>(API_ENDPOINTS.CREATE_TICKET_CLIENT, ticketData)
   },
 
   async checkTicket(data: CheckTicketRequest): Promise<TicketResponse> {

@@ -82,12 +82,28 @@ export default function EventosDisponiveis() {
     fetchEventsForClients().catch(() => {})
   }, [fetchEventsForClients])
 
-  const handlePurchaseClick = (event: any, index: number) => {
+  const handlePurchaseClick = async (event: any, index: number) => {
     const userEmail = authService.getUserEmail()
     setSelectedEvent(event)
     setSelectedEventRaw(eventsRaw[index])
+    
+    // Buscar nome do usuário logado para preencher automaticamente
+    let userName = ''
+    if (userEmail) {
+      try {
+        const userResponse = await usersService.getUser({ email: userEmail })
+        const user = Array.isArray(userResponse) ? userResponse[0] : userResponse
+        if (user && user.name) {
+          userName = user.name
+        }
+      } catch (err) {
+        // Se não conseguir buscar, deixa vazio
+        console.warn('Não foi possível buscar nome do usuário', err)
+      }
+    }
+    
     setPurchaseForm({
-      buyerName: '',
+      buyerName: userName,
       buyerEmail: userEmail || '',
     })
     setShowPurchaseModal(true)
@@ -120,60 +136,7 @@ export default function EventosDisponiveis() {
     setPurchasing(true)
 
     try {
-      // 1. Buscar o usuário pelo email do comprador
-      let userId: number | null = null
-      try {
-        const userResponse = await usersService.getUser({ email: buyerEmail.toLowerCase().trim() })
-        const user = Array.isArray(userResponse) ? userResponse[0] : userResponse
-        
-        if (!user || !user.id) {
-          showError('Usuário não encontrado. Por favor, verifique o email informado.')
-          setPurchasing(false)
-          return
-        }
-        
-        userId = Number(user.id)
-        if (isNaN(userId) || userId <= 0) {
-          showError('Erro ao obter ID do usuário')
-          setPurchasing(false)
-          return
-        }
-      } catch (err: any) {
-        showError('Erro ao buscar usuário. Verifique se o email está correto.')
-        setPurchasing(false)
-        return
-      }
-
-      // 2. Buscar o companyId do usuário logado (vendedor)
-      let companyId: number | null = null
-      try {
-        const loggedUserEmail = authService.getUserEmail()
-        if (!loggedUserEmail) {
-          throw new Error('Usuário não está logado')
-        }
-        
-        const loggedUserResponse = await usersService.getUser({ email: loggedUserEmail })
-        const loggedUser = Array.isArray(loggedUserResponse) ? loggedUserResponse[0] : loggedUserResponse
-        
-        if (loggedUser && loggedUser.companyId) {
-          companyId = Number(loggedUser.companyId)
-        } else {
-          throw new Error('Usuário logado não possui companyId')
-        }
-      } catch (err) {
-        showError('Erro ao buscar dados do usuário logado. Por favor, faça login novamente.')
-        setPurchasing(false)
-        return
-      }
-
-      if (!companyId || isNaN(companyId)) {
-        showError('Não foi possível obter a empresa do usuário logado.')
-        setPurchasing(false)
-        return
-      }
-
-      // 3. Obter ticketTypeId do evento
-      // Usar o evento raw que já tem o ticketTypeId, ou buscar do backend se não tiver
+      // Obter ticketTypeId do evento
       let ticketTypeId: number | null = null
       
       if (selectedEventRaw && selectedEventRaw.ticketTypeId) {
@@ -196,17 +159,15 @@ export default function EventosDisponiveis() {
         return
       }
 
-      // 4. Criar o ticket
+      // Criar o ticket usando a rota do cliente
       const ticketData = {
         email: buyerEmail.toLowerCase().trim(),
         name: buyerName.trim(),
         eventId: Number(selectedEvent.id),
-        userId: userId,
-        companyId: companyId,
         ticketTypeId: Number(ticketTypeId),
       }
 
-      const ticketResponse = await ticketsService.createTicket(ticketData)
+      const ticketResponse = await ticketsService.createTicketClient(ticketData)
       
       // Sucesso! Mostrar animação
       setShowPurchaseModal(false)

@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
   
   // Tickets
   CREATE_TICKET: '/ticket/create-ticket',
+  CREATE_TICKET_CLIENT: '/ticket/create-ticket-client',
   CHECK_TICKET: '/ticket/check-ticket',
   GET_ALL_TICKETS: '/ticket/getAlltickets',
   GET_TICKET_BY_USER_NAME: '/ticket/getTicketUserName/',
